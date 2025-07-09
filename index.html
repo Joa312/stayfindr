@@ -645,7 +645,9 @@
         </div>
     </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
+            crossorigin=""></script>
     <script>
         let map;
         let currentMarkers = [];
@@ -662,6 +664,17 @@
             'junior_suite': { guests: 2, description: 'Spacious room with sitting area' },
             'suite': { guests: 3, description: 'Luxury accommodation with separate living area' }
         };
+
+        // Wait for page to load completely
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('📄 Page loaded, initializing STAYFINDR...');
+            
+            // Wait for Leaflet to be ready
+            await waitForLeaflet();
+            
+            // Initialize the application
+            initializeApp();
+        });
 
         // Wait for Leaflet to load properly
         function waitForLeaflet() {
@@ -703,6 +716,7 @@
                     throw new Error('Backend not responding');
                 }
             } catch (error) {
+                console.error('Backend connection error:', error);
                 document.getElementById('connectionStatus').innerHTML = '❌ Backend offline - Using demo data';
                 document.getElementById('connectionStatus').className = 'status error';
             }
@@ -710,13 +724,22 @@
 
         function initMap() {
             try {
+                console.log('🗺️ Initializing map...');
                 map = L.map('map').setView([59.3293, 18.0686], 6);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     attribution: '© OpenStreetMap contributors'
                 }).addTo(map);
-                console.log('🗺️ Map initialized successfully');
+                console.log('✅ Map initialized successfully');
             } catch (error) {
-                console.error('Map initialization failed:', error);
+                console.error('❌ Map initialization failed:', error);
+                // Try to reinitialize map after a short delay
+                setTimeout(() => {
+                    try {
+                        initMap();
+                    } catch (retryError) {
+                        console.error('❌ Map retry failed:', retryError);
+                    }
+                }, 1000);
             }
         }
 
@@ -725,6 +748,7 @@
             if (searchForm) {
                 searchForm.addEventListener('submit', function(e) {
                     e.preventDefault();
+                    console.log('🔍 Form submitted, starting search...');
                     searchHotels();
                 });
                 console.log('📋 Form event listeners setup');
@@ -779,43 +803,24 @@
             const hotelsList = document.getElementById('hotelsList');
             const hotelsTitle = document.getElementById('hotelsTitle');
 
+            // Disable button and show loading state
             searchButton.disabled = true;
             searchButton.innerHTML = '⏳ Searching...';
             hotelsList.innerHTML = '<div class="loading">🔍 Searching real hotels from Booking.com...</div>';
             hotelsTitle.innerHTML = `Hotels in ${city}`;
 
             try {
-                const response = await fetch(`${BACKEND_URL}/api/hotels?city=${city}&checkin=${checkin}&checkout=${checkout}&adults=${guests}&rooms=1&room_type=${roomType}`);
+                const apiUrl = `${BACKEND_URL}/api/hotels?city=${city}&checkin=${checkin}&checkout=${checkout}&adults=${guests}&rooms=1&room_type=${roomType}`;
+                console.log('API URL:', apiUrl);
+                
+                const response = await fetch(apiUrl);
                   
                 if (!response.ok) {
-                    throw new Error(`API error: ${response.status}`);
+                    throw new Error(`API error: ${response.status} ${response.statusText}`);
                 }
 
                 const data = await response.json();
+                console.log('API Response:', data);
 
                 if (data.error) {
-                    throw new Error(data.error);
-                }
-
-                if (data.hotels && data.hotels.length > 0) {
-                    allHotelsData = data.hotels;
-                    currentlyShowing = 5;
-                      
-                    displayHotels(data.hotels.slice(0, 5), data.city, roomType);
-                    updateMap(data.hotels.slice(0, 5));
-                      
-                    const loadMoreContainer = document.getElementById('loadMoreContainer');
-                    if (data.hotels.length > 5) {
-                        loadMoreContainer.style.display = 'block';
-                        updateLoadMoreButton();
-                    } else {
-                        loadMoreContainer.style.display = 'none';
-                    }
-                      
-                    document.getElementById('connectionStatus').innerHTML =   
-                        `✅ Found ${data.total_found} real hotels in ${data.city} from Booking.com! (Showing ${Math.min(5, data.hotels.length)})`;
-                    document.getElementById('connectionStatus').className = 'status success-indicator';
-                } else {
-                    hotelsList.innerHTML = '<div class="error">No hotels found for this city and dates.</div>';
-                    document.getElementById('loadMoreContainer').style.display = 'none';
-                }
+                    throw new
