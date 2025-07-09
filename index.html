@@ -33,7 +33,7 @@
         }
         .search-form {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 15px;
             align-items: end;
         }
@@ -79,12 +79,13 @@
         .room-type-status {
             background: #e3f2fd;
             color: #1976d2;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 0.95rem;
             text-align: center;
-            margin-top: 10px;
-            display: none;
+            margin-top: 15px;
+            font-weight: 500;
+            display: block;
         }
         .main-content {     
             display: grid;     
@@ -140,9 +141,10 @@
         .room-type-indicator {
             background: #e8f5e8;
             color: #27ae60;
-            padding: 4px 8px;
-            border-radius: 12px;
+            padding: 6px 12px;
+            border-radius: 15px;
             font-size: 0.8rem;
+            font-weight: 500;
             display: inline-block;
             margin-bottom: 8px;
         }
@@ -556,7 +558,9 @@
                     </button>
                 </div>
             </form>
-            <div class="room-type-status" id="roomTypeStatus"></div>
+            <div class="room-type-status" id="roomTypeStatus">
+                🏨 Ideal for couples - Ready to search!
+            </div>
         </div>
 
         <div class="main-content">
@@ -656,7 +660,7 @@
         let currentlyShowing = 5;
         const BACKEND_URL = 'https://actionly.onrender.com';
 
-        // Room type configurations
+        // Room type configurations with enhanced descriptions
         const ROOM_TYPES = {
             'single': { guests: 1, description: 'Perfect for solo travelers' },
             'double': { guests: 2, description: 'Ideal for couples' },
@@ -665,7 +669,7 @@
             'suite': { guests: 3, description: 'Luxury accommodation with separate living area' }
         };
 
-        // Wait for page to load completely
+        // Initialize when page loads
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('📄 Page loaded, initializing STAYFINDR...');
             
@@ -773,7 +777,7 @@
                 
                 if (config) {
                     guestsSelect.value = config.guests;
-                    statusDiv.textContent = `${config.description} - Ready to search!`;
+                    statusDiv.innerHTML = `🏨 ${config.description} - Ready to search!`;
                     statusDiv.style.display = 'block';
                 }
             }
@@ -807,20 +811,5 @@
             searchButton.disabled = true;
             searchButton.innerHTML = '⏳ Searching...';
             hotelsList.innerHTML = '<div class="loading">🔍 Searching real hotels from Booking.com...</div>';
-            hotelsTitle.innerHTML = `Hotels in ${city}`;
-
-            try {
-                const apiUrl = `${BACKEND_URL}/api/hotels?city=${city}&checkin=${checkin}&checkout=${checkout}&adults=${guests}&rooms=1&room_type=${roomType}`;
-                console.log('API URL:', apiUrl);
-                
-                const response = await fetch(apiUrl);
-                  
-                if (!response.ok) {
-                    throw new Error(`API error: ${response.status} ${response.statusText}`);
-                }
-
-                const data = await response.json();
-                console.log('API Response:', data);
-
-                if (data.error) {
-                    throw new
+            
+            const roomConfig = ROOM_TYPES[room
