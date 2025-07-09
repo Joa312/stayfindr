@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>STAYFINDR - European Hotel Search</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"     
-          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="     
-          crossorigin=""/>
     <style>
         body {     
             font-family: 'Segoe UI', sans-serif;     
@@ -96,6 +93,8 @@
         #map {     
             border-radius: 15px;     
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            width: 100%;
+            height: 100%;
         }
         .hotels-panel {     
             background: rgba(255,255,255,0.95);     
@@ -649,9 +648,6 @@
         </div>
     </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
-            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
-            crossorigin=""></script>
     <script>
         let map;
         let currentMarkers = [];
@@ -670,35 +666,14 @@
         };
 
         // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', async function() {
+        document.addEventListener('DOMContentLoaded', function() {
             console.log('📄 Page loaded, initializing STAYFINDR...');
-            
-            // Wait for Leaflet to be ready
-            await waitForLeaflet();
-            
-            // Initialize the application
             initializeApp();
         });
 
-        // Wait for Leaflet to load properly
-        function waitForLeaflet() {
-            return new Promise((resolve) => {
-                function checkLeaflet() {
-                    if (typeof L !== 'undefined') {
-                        console.log('✅ Leaflet loaded successfully');
-                        resolve();
-                    } else {
-                        console.log('⏳ Waiting for Leaflet...');
-                        setTimeout(checkLeaflet, 100);
-                    }
-                }
-                checkLeaflet();
-            });
-        }
-
         // Initialize the application
         function initializeApp() {
-            console.log('🚀 Initializing STAYFINDR with live backend...');
+            console.log('🚀 Initializing STAYFINDR with Google Maps...');
               
             testBackendConnection();
             initMap();
@@ -728,22 +703,32 @@
 
         function initMap() {
             try {
-                console.log('🗺️ Initializing map...');
-                map = L.map('map').setView([59.3293, 18.0686], 6);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors'
-                }).addTo(map);
-                console.log('✅ Map initialized successfully');
+                console.log('🗺️ Initializing Google Maps...');
+                
+                // Initialize Google Maps
+                map = new google.maps.Map(document.getElementById('map'), {
+                    center: { lat: 59.3293, lng: 18.0686 }, // Stockholm
+                    zoom: 6,
+                    styles: [
+                        {
+                            featureType: 'poi',
+                            elementType: 'labels',
+                            stylers: [{ visibility: 'off' }]
+                        }
+                    ]
+                });
+                
+                console.log('✅ Google Maps initialized successfully');
             } catch (error) {
                 console.error('❌ Map initialization failed:', error);
-                // Try to reinitialize map after a short delay
-                setTimeout(() => {
-                    try {
-                        initMap();
-                    } catch (retryError) {
-                        console.error('❌ Map retry failed:', retryError);
-                    }
-                }, 1000);
+                // Show fallback content
+                document.getElementById('map').innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #f8f9fa; color: #666; flex-direction: column; border-radius: 15px;">
+                        <div style="font-size: 4rem; margin-bottom: 20px;">🗺️</div>
+                        <h3>Map Loading...</h3>
+                        <p>Interactive map will appear here when you search for hotels</p>
+                    </div>
+                `;
             }
         }
 
@@ -812,4 +797,229 @@
             searchButton.innerHTML = '⏳ Searching...';
             hotelsList.innerHTML = '<div class="loading">🔍 Searching real hotels from Booking.com...</div>';
             
-            const roomConfig = ROOM_TYPES[room
+            const roomConfig = ROOM_TYPES[roomType];
+            hotelsTitle.innerHTML = `${roomConfig?.description || 'Hotels'} in ${city}`;
+
+            try {
+                // Include room type in API call
+                const response = await fetch(`${BACKEND_URL}/api/hotels?city=${city}&checkin=${checkin}&checkout=${checkout}&adults=${guests}&rooms=1&room_type=${roomType}`);
+                
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                if (data.hotels && data.hotels.length > 0) {
+                    allHotelsData = data.hotels;
+                    currentlyShowing = 5;
+                    
+                    displayHotels(data.hotels.slice(0, 5), data.city, roomType);
+                    updateMap(data.hotels.slice(0, 5));
+                    
+                    const loadMoreContainer = document.getElementById('loadMoreContainer');
+                    if (data.hotels.length > 5) {
+                        loadMoreContainer.style.display = 'block';
+                        updateLoadMoreButton();
+                    } else {
+                        loadMoreContainer.style.display = 'none';
+                    }
+                    
+                    document.getElementById('connectionStatus').innerHTML = 
+                        `✅ Found ${data.total_found} ${roomConfig?.description.toLowerCase() || 'hotels'} in ${data.city}! (Showing ${Math.min(5, data.hotels.length)})`;
+                    document.getElementById('connectionStatus').className = 'status success-indicator';
+                } else {
+                    hotelsList.innerHTML = '<div class="error">No hotels found for this room type and dates.</div>';
+                    document.getElementById('loadMoreContainer').style.display = 'none';
+                }
+
+            } catch (error) {
+                console.error('Search error:', error);
+                hotelsList.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+                
+                document.getElementById('connectionStatus').innerHTML = '❌ Search failed - Check backend connection';
+                document.getElementById('connectionStatus').className = 'status error';
+            }
+
+            searchButton.disabled = false;
+            searchButton.innerHTML = '🔍 Search Hotels';
+        }
+
+        function showMoreHotels() {
+            const nextBatch = Math.min(currentlyShowing + 5, allHotelsData.length);
+            const hotelsToShow = allHotelsData.slice(0, nextBatch);
+            
+            currentlyShowing = nextBatch;
+            
+            const roomType = document.getElementById('roomType').value;
+            displayHotels(hotelsToShow, '', roomType);
+            updateMap(hotelsToShow);
+            updateLoadMoreButton();
+            
+            document.getElementById('connectionStatus').innerHTML = 
+                `✅ Showing ${currentlyShowing} of ${allHotelsData.length} hotels`;
+        }
+
+        function updateLoadMoreButton() {
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            const loadMoreContainer = document.getElementById('loadMoreContainer');
+            
+            if (currentlyShowing >= allHotelsData.length) {
+                loadMoreContainer.style.display = 'none';
+            } else {
+                const remaining = allHotelsData.length - currentlyShowing;
+                loadMoreBtn.innerHTML = `📋 Show ${Math.min(5, remaining)} More Hotels (${remaining} remaining)`;
+            }
+        }
+
+        function displayHotels(hotels, cityName, roomType) {
+            currentHotels = hotels;
+            const hotelsList = document.getElementById('hotelsList');
+            const roomDescription = ROOM_TYPES[roomType]?.description || '';
+
+            let html = '';
+            hotels.forEach((hotel, index) => {
+                const priceDisplay = hotel.price !== 'N/A' ? `€${hotel.price}/night` : 'Price on request';
+                const stars = '⭐'.repeat(Math.floor(hotel.rating));
+
+                html += `
+                    <div class="hotel-card" data-hotel-id="${hotel.id}" 
+                         onmouseover="highlightMarker(${index})" 
+                         onmouseout="unhighlightMarker(${index})">
+                        <div class="hotel-name">${hotel.name}</div>
+                        <div class="hotel-details">📍 ${hotel.address}</div>
+                        <div class="room-type-indicator">
+                            🏨 ${roomDescription}
+                        </div>
+                        <div class="price-info">
+                            <span class="price">${priceDisplay}</span>
+                            <span class="rating">${stars} ${hotel.rating}/5</span>
+                        </div>
+                        <div class="hotel-actions">
+                            <a href="${hotel.booking_url}" target="_blank" class="action-btn book-btn">
+                                Book on Booking.com
+                            </a>
+                        </div>
+                    </div>
+                `;
+            });
+
+            hotelsList.innerHTML = html;
+        }
+
+        function updateMap(hotels) {
+            if (!map || !google) {
+                console.log('Map not available, skipping update');
+                return;
+            }
+
+            try {
+                // Clear existing markers
+                currentMarkers.forEach(marker => marker.setMap(null));
+                currentMarkers = [];
+
+                if (hotels.length > 0) {
+                    // Set map center to first hotel location
+                    const center = new google.maps.LatLng(hotels[0].coordinates[0], hotels[0].coordinates[1]);
+                    map.setCenter(center);
+                    map.setZoom(12);
+
+                    // Add markers for each hotel
+                    hotels.forEach((hotel, index) => {
+                        const marker = new google.maps.Marker({
+                            position: new google.maps.LatLng(hotel.coordinates[0], hotel.coordinates[1]),
+                            map: map,
+                            title: hotel.name,
+                            icon: {
+                                url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                                    <svg width="30" height="40" viewBox="0 0 30 40" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M15 0C6.7 0 0 6.7 0 15c0 15 15 25 15 25s15-10 15-25C30 6.7 23.3 0 15 0z" fill="#667eea"/>
+                                        <circle cx="15" cy="15" r="8" fill="white"/>
+                                        <text x="15" y="19" text-anchor="middle" font-family="Arial" font-size="12" fill="#667eea">🏨</text>
+                                    </svg>
+                                `),
+                                scaledSize: new google.maps.Size(30, 40),
+                                anchor: new google.maps.Point(15, 40)
+                            }
+                        });
+
+                        // Create info window
+                        const infoWindow = new google.maps.InfoWindow({
+                            content: `
+                                <div style="padding: 10px; max-width: 200px;">
+                                    <h4 style="margin: 0 0 8px 0; color: #2c3e50;">${hotel.name}</h4>
+                                    <p style="margin: 4px 0; color: #27ae60; font-weight: 600;">
+                                        ${hotel.price !== 'N/A' ? `€${hotel.price}/night` : 'Price on request'}
+                                    </p>
+                                    <p style="margin: 4px 0; color: #f39c12;">
+                                        ⭐ ${hotel.rating}/5
+                                    </p>
+                                </div>
+                            `
+                        });
+
+                        // Add click listener to marker
+                        marker.addListener('click', () => {
+                            currentMarkers.forEach(m => {
+                                if (m.infoWindow) m.infoWindow.close();
+                            });
+                            infoWindow.open(map, marker);
+                            highlightHotelCard(index);
+                        });
+
+                        marker.infoWindow = infoWindow;
+                        currentMarkers.push(marker);
+                    });
+                }
+            } catch (error) {
+                console.error('Map update failed:', error);
+            }
+        }
+
+        function highlightMarker(index) {
+            if (currentMarkers[index] && currentMarkers[index].infoWindow) {
+                currentMarkers[index].infoWindow.open(map, currentMarkers[index]);
+            }
+        }
+
+        function unhighlightMarker(index) {
+            if (currentMarkers[index] && currentMarkers[index].infoWindow) {
+                currentMarkers[index].infoWindow.close();
+            }
+        }
+
+        function highlightHotelCard(index) {
+            document.querySelectorAll('.hotel-card').forEach(card => 
+                card.classList.remove('highlighted'));
+
+            const targetCard = document.querySelector(`[data-hotel-id="${currentHotels[index].id}"]`);
+            if (targetCard) {
+                targetCard.classList.add('highlighted');
+                targetCard.scrollIntoView({behavior: 'smooth', block: 'center'});
+            }
+        }
+
+        // Load Google Maps API
+        function loadGoogleMapsAPI() {
+            const script = document.createElement('script');
+            script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBu-916DdpKAjTmJNIgngS6HL_kDIKU0aU&callback=initMap';
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        }
+
+        // Google Maps callback
+        window.initMap = function() {
+            console.log('Google Maps API loaded successfully');
+            // Map will be initialized in initializeApp()
+        };
+
+        // Load Google Maps when page is ready
+        loadGoogleMapsAPI();
+    </script>
+</body>
+</html>
