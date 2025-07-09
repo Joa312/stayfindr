@@ -4,20 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>STAYFINDR - European Hotel Search</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"   
-          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="   
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"     
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="     
           crossorigin=""/>
     <style>
-        body {   
-            font-family: 'Segoe UI', sans-serif;   
+        body {     
+            font-family: 'Segoe UI', sans-serif;     
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             margin: 0; padding: 20px; min-height: 100vh;
         }
         .container { max-width: 1400px; margin: 0 auto; }
         .header { text-align: center; color: white; margin-bottom: 30px; }
-        .header h1 { 
-            font-size: 3rem; 
-            font-weight: 700; 
+        .header h1 {   
+            font-size: 3rem;   
+            font-weight: 700;   
             margin-bottom: 10px;
             background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
             -webkit-background-clip: text;
@@ -26,14 +26,14 @@
         }
         .header p { font-size: 1.2rem; opacity: 0.9; }
         .status { text-align: center; color: white; margin-bottom: 20px; }
-        .search-container {   
-            background: rgba(255,255,255,0.95);   
-            border-radius: 20px; padding: 30px; margin-bottom: 30px;   
+        .search-container {     
+            background: rgba(255,255,255,0.95);     
+            border-radius: 20px; padding: 30px; margin-bottom: 30px;     
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
         }
         .search-form {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 15px;
             align-items: end;
         }
@@ -76,20 +76,20 @@
             cursor: not-allowed;
             transform: none;
         }
-        .main-content {   
-            display: grid;   
-            grid-template-columns: 1fr 400px;   
-            gap: 30px;   
-            height: 600px;   
+        .main-content {     
+            display: grid;     
+            grid-template-columns: 1fr 400px;     
+            gap: 30px;     
+            height: 600px;     
         }
-        #map {   
-            border-radius: 15px;   
+        #map {     
+            border-radius: 15px;     
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
         }
-        .hotels-panel {   
-            background: rgba(255,255,255,0.95);   
-            border-radius: 15px;   
-            padding: 25px;   
+        .hotels-panel {     
+            background: rgba(255,255,255,0.95);     
+            border-radius: 15px;     
+            padding: 25px;     
             overflow-y: auto;
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
         }
@@ -99,11 +99,11 @@
             border-bottom: 2px solid #3498db;
             padding-bottom: 10px;
         }
-        .hotel-card {   
-            background: white;   
-            border-radius: 10px;   
-            padding: 15px;   
-            margin: 10px 0;   
+        .hotel-card {     
+            background: white;     
+            border-radius: 10px;     
+            padding: 15px;     
+            margin: 10px 0;     
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             transition: transform 0.2s, box-shadow 0.2s;
             cursor: pointer;
@@ -283,7 +283,7 @@
             <h1>STAYFINDR</h1>
             <p>Save Time & Money: See Today's Hotel Prices Across Europe</p>
         </div>
-          
+            
         <div class="status" id="connectionStatus">
             🔗 Connecting to STAYFINDR backend...
         </div>
@@ -325,6 +325,16 @@
                     </select>
                 </div>
                 <div class="form-group">
+                    <label for="roomType">Room Type</label>
+                    <select id="roomType">
+                        <option value="single">Single Room (1 guest)</option>
+                        <option value="double" selected>Double Room (2 guests)</option>
+                        <option value="family">Family Room (3-4 guests)</option>
+                        <option value="junior_suite">Junior Suite (2 guests)</option>
+                        <option value="suite">Suite/Apartment (2-4 guests)</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label for="checkin">Check-in</label>
                     <input type="date" id="checkin" required>
                 </div>
@@ -336,7 +346,7 @@
                     <label for="guests">Guests</label>
                     <select id="guests">
                         <option value="1">1 Guest</option>
-                        <option value="2">2 Guests</option>
+                        <option value="2" selected>2 Guests</option>
                         <option value="3">3 Guests</option>
                         <option value="4">4 Guests</option>
                     </select>
@@ -354,7 +364,7 @@
             <div class="hotels-panel">
                 <h3 id="hotelsTitle">Hotels</h3>
                 <div id="hotelsList">
-                    <div class="loading">Click "Search Hotels" to find real hotels from Booking.com</div>
+                    <div class="loading">Select room type and click "Search Hotels" to find real hotels from Booking.com</div>
                 </div>
                 <div id="loadMoreContainer" style="display: none; text-align: center; margin-top: 15px;">
                     <button id="loadMoreBtn" class="search-btn" style="width: 100%;">
@@ -373,6 +383,15 @@
         let allHotelsData = [];
         let currentlyShowing = 5;
         const BACKEND_URL = 'https://actionly.onrender.com';
+
+        // Room type mapping for smart guest updating
+        const ROOM_TYPE_MAPPING = {
+            'single': { guests: 1, description: 'Perfect for solo travelers' },
+            'double': { guests: 2, description: 'Ideal for couples' },
+            'family': { guests: 4, description: 'Great for families with children' },
+            'junior_suite': { guests: 2, description: 'Spacious room with sitting area' },
+            'suite': { guests: 3, description: 'Luxury accommodation with separate living space' }
+        };
 
         // Wait for Leaflet to load properly
         function waitForLeaflet() {
@@ -398,6 +417,7 @@
             initMap();
             setupEventListeners();
             setDefaultDates();
+            setupRoomTypeLogic();
             
             console.log('✅ STAYFINDR initialized successfully');
         }
@@ -448,6 +468,26 @@
             }
         }
 
+        function setupRoomTypeLogic() {
+            const roomTypeSelect = document.getElementById('roomType');
+            const guestsSelect = document.getElementById('guests');
+
+            // Smart guest updating when room type changes
+            roomTypeSelect.addEventListener('change', function() {
+                const roomType = this.value;
+                const mapping = ROOM_TYPE_MAPPING[roomType];
+                
+                if (mapping) {
+                    guestsSelect.value = mapping.guests;
+                    
+                    // Update status with room description
+                    const statusEl = document.getElementById('connectionStatus');
+                    statusEl.innerHTML = `🏨 ${mapping.description} - Ready to search!`;
+                    statusEl.className = 'status success-indicator';
+                }
+            });
+        }
+
         function setDefaultDates() {
             const today = new Date();
             const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
@@ -458,11 +498,12 @@
 
         async function searchHotels() {
             const city = document.getElementById('city').value;
+            const roomType = document.getElementById('roomType').value;
             const checkin = document.getElementById('checkin').value;
             const checkout = document.getElementById('checkout').value;
             const guests = document.getElementById('guests').value;
 
-            console.log(`🔍 Searching hotels: ${city}, ${checkin} to ${checkout}, ${guests} guests`);
+            console.log(`🔍 Searching hotels: ${city}, ${roomType}, ${checkin} to ${checkout}, ${guests} guests`);
 
             const searchButton = document.getElementById('searchButton');
             const hotelsList = document.getElementById('hotelsList');
@@ -471,10 +512,11 @@
             searchButton.disabled = true;
             searchButton.innerHTML = '⏳ Searching...';
             hotelsList.innerHTML = '<div class="loading">🔍 Searching real hotels from Booking.com...</div>';
-            hotelsTitle.innerHTML = `Hotels in ${city}`;
+            hotelsTitle.innerHTML = `${ROOM_TYPE_MAPPING[roomType]?.description || 'Hotels'} in ${city}`;
 
             try {
-                const response = await fetch(`${BACKEND_URL}/api/hotels?city=${city}&checkin=${checkin}&checkout=${checkout}&adults=${guests}&rooms=1`);
+                // Include room type in API call
+                const response = await fetch(`${BACKEND_URL}/api/hotels?city=${city}&checkin=${checkin}&checkout=${checkout}&adults=${guests}&rooms=1&room_type=${roomType}`);
                 
                 if (!response.ok) {
                     throw new Error(`API error: ${response.status}`);
@@ -490,7 +532,7 @@
                     allHotelsData = data.hotels;
                     currentlyShowing = 5;
                     
-                    displayHotels(data.hotels.slice(0, 5), data.city);
+                    displayHotels(data.hotels.slice(0, 5), data.city, roomType);
                     updateMap(data.hotels.slice(0, 5));
                     
                     const loadMoreContainer = document.getElementById('loadMoreContainer');
@@ -502,10 +544,10 @@
                     }
                     
                     document.getElementById('connectionStatus').innerHTML = 
-                        `✅ Found ${data.total_found} real hotels in ${data.city} from Booking.com! (Showing ${Math.min(5, data.hotels.length)})`;
+                        `✅ Found ${data.total_found} ${ROOM_TYPE_MAPPING[roomType]?.description.toLowerCase() || 'hotels'} in ${data.city} from Booking.com! (Showing ${Math.min(5, data.hotels.length)})`;
                     document.getElementById('connectionStatus').className = 'status success-indicator';
                 } else {
-                    hotelsList.innerHTML = '<div class="error">No hotels found for this city and dates.</div>';
+                    hotelsList.innerHTML = '<div class="error">No hotels found for this room type and dates.</div>';
                     document.getElementById('loadMoreContainer').style.display = 'none';
                 }
 
@@ -527,7 +569,8 @@
             
             currentlyShowing = nextBatch;
             
-            displayHotels(hotelsToShow, '');
+            const roomType = document.getElementById('roomType').value;
+            displayHotels(hotelsToShow, '', roomType);
             updateMap(hotelsToShow);
             updateLoadMoreButton();
             
@@ -547,9 +590,10 @@
             }
         }
 
-        function displayHotels(hotels, cityName) {
+        function displayHotels(hotels, cityName, roomType) {
             currentHotels = hotels;
             const hotelsList = document.getElementById('hotelsList');
+            const roomDescription = ROOM_TYPE_MAPPING[roomType]?.description || '';
 
             let html = '';
             hotels.forEach((hotel, index) => {
@@ -562,6 +606,9 @@
                          onmouseout="unhighlightMarker(${index})">
                         <div class="hotel-name">${hotel.name}</div>
                         <div class="hotel-details">📍 ${hotel.address}</div>
+                        <div class="hotel-details" style="color: #3498db; font-weight: 500;">
+                            🏨 ${roomDescription}
+                        </div>
                         <div class="price-info">
                             <span class="price">${priceDisplay}</span>
                             <span class="rating">${stars} ${hotel.rating}/5</span>
