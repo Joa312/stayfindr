@@ -4,21 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>STAYFINDR - European Hotel Search</title>
-    <!-- OpenStreetMap with Leaflet - No API key required! -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
-          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
-          crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
     <style>
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
+        body {     
+            font-family: 'Segoe UI', sans-serif;     
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             margin: 0; padding: 20px; min-height: 100vh;
         }
         .container { max-width: 1400px; margin: 0 auto; }
         .header { text-align: center; color: white; margin-bottom: 30px; }
-        .header h1 { 
-            font-size: 3rem; 
-            font-weight: 700; 
+        .header h1 {   
+            font-size: 3rem;   
+            font-weight: 700;   
             margin-bottom: 10px;
             background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
             -webkit-background-clip: text;
@@ -27,9 +24,9 @@
         }
         .header p { font-size: 1.2rem; opacity: 0.9; }
         .status { text-align: center; color: white; margin-bottom: 20px; }
-        .search-container { 
-            background: rgba(255,255,255,0.95); 
-            border-radius: 20px; padding: 30px; margin-bottom: 30px; 
+        .search-container {     
+            background: rgba(255,255,255,0.95);     
+            border-radius: 20px; padding: 30px; margin-bottom: 30px;     
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
         }
         .search-form {
@@ -77,22 +74,31 @@
             cursor: not-allowed;
             transform: none;
         }
-        .main-content { 
-            display: grid; 
-            grid-template-columns: 1fr 400px; 
-            gap: 30px; 
-            height: 600px; 
+        .room-type-hint {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            margin-top: 5px;
+            min-height: 20px;
         }
-        #map { 
-            border-radius: 15px; 
+        .main-content {     
+            display: grid;     
+            grid-template-columns: 1fr 400px;     
+            gap: 30px;     
+            height: 600px;     
+        }
+        #map {     
+            border-radius: 15px;     
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
             background: #f8f9fa;
-            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
         }
-        .hotels-panel { 
-            background: rgba(255,255,255,0.95); 
-            border-radius: 15px; 
-            padding: 25px; 
+        .hotels-panel {     
+            background: rgba(255,255,255,0.95);     
+            border-radius: 15px;     
+            padding: 25px;     
             overflow-y: auto;
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
         }
@@ -102,11 +108,11 @@
             border-bottom: 2px solid #3498db;
             padding-bottom: 10px;
         }
-        .hotel-card { 
-            background: white; 
-            border-radius: 10px; 
-            padding: 15px; 
-            margin: 10px 0; 
+        .hotel-card {     
+            background: white;     
+            border-radius: 10px;     
+            padding: 15px;     
+            margin: 10px 0;     
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             transition: transform 0.2s, box-shadow 0.2s;
             cursor: pointer;
@@ -144,6 +150,14 @@
         .rating {
             color: #f39c12;
             font-weight: 500;
+        }
+        .room-info {
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            color: #555;
         }
         .hotel-actions {
             display: flex;
@@ -191,76 +205,42 @@
             text-align: center;
         }
         .retry-btn {
-            background: #e67e22;
+            background: #3498db;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 5px;
             cursor: pointer;
-            margin: 10px;
+            margin-top: 10px;
         }
-        
-        /* Room type info */
-        .room-info {
-            font-size: 0.9rem;
-            color: #555;
-            margin: 5px 0;
-            font-style: italic;
+        .retry-btn:hover {
+            background: #2980b9;
         }
 
-        /* Terms Section */
-        .terms-section {
-            background: rgba(255,255,255,0.95);
-            border-radius: 15px;
-            padding: 30px;
-            margin-top: 40px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-        }
-        .terms-section h2 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
-        }
-        .terms-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            margin-top: 20px;
-        }
-        .terms-box {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            border-left: 4px solid #3498db;
-        }
-        .terms-box h3 {
-            color: #2c3e50;
-            margin-bottom: 15px;
-        }
-        .terms-box p {
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 10px;
-        }
-
-        /* About Section */
-        .about-section {
+        /* Terms and About Sections */
+        .terms-section, .about-section {
             background: rgba(255,255,255,0.95);
             border-radius: 15px;
             padding: 30px;
             margin-top: 30px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
         }
-        .about-section h2 {
+        .terms-section h2, .about-section h2 {
             color: #2c3e50;
             margin-bottom: 20px;
             border-bottom: 2px solid #3498db;
             padding-bottom: 10px;
         }
-        .about-content p {
+        .terms-content, .about-content {
             color: #555;
             line-height: 1.6;
+        }
+        .terms-content h3, .about-content h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+        .terms-content p, .about-content p {
             margin-bottom: 15px;
         }
         .contact-info {
@@ -273,11 +253,6 @@
         .contact-info h3 {
             color: #2c3e50;
             margin-bottom: 15px;
-        }
-        .contact-info p {
-            color: #555;
-            line-height: 1.6;
-            margin-bottom: 10px;
         }
         .contact-info a {
             color: #3498db;
@@ -347,17 +322,12 @@
                 padding: 10px 8px !important;
                 font-size: 0.8rem !important;
             }
+            #loadMoreContainer {
+                margin-top: 10px !important;
+            }
             .status {
                 font-size: 0.9rem !important;
                 padding: 8px !important;
-            }
-            .terms-content {
-                grid-template-columns: 1fr !important;
-                gap: 15px !important;
-            }
-            .terms-section, .about-section {
-                padding: 20px !important;
-                margin-top: 20px !important;
             }
         }
 
@@ -379,17 +349,6 @@
                 padding: 10px !important;
             }
         }
-
-        /* Map loading indicator */
-        .map-loading {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            background: #f8f9fa;
-            color: #666;
-            font-size: 1.1rem;
-        }
     </style>
 </head>
 <body>
@@ -400,7 +359,7 @@
         </div>
             
         <div class="status" id="connectionStatus">
-            ⏳ Waking up backend - This may take up to 30 seconds...
+            ⏳ Waking up backend...
         </div>
 
         <div class="search-container">
@@ -448,6 +407,7 @@
                         <option value="junior_suite">Junior Suite (2 guests)</option>
                         <option value="suite">Suite/Apartment (2-4 guests)</option>
                     </select>
+                    <div class="room-type-hint" id="roomTypeHint">Ideal for couples</div>
                 </div>
                 <div class="form-group">
                     <label for="checkin">Check-in</label>
@@ -461,7 +421,7 @@
                     <label for="guests">Guests</label>
                     <select id="guests">
                         <option value="1">1 Guest</option>
-                        <option value="2" selected>2 Guests</option>
+                        <option value="2">2 Guests</option>
                         <option value="3">3 Guests</option>
                         <option value="4">4 Guests</option>
                     </select>
@@ -472,21 +432,14 @@
                     </button>
                 </div>
             </form>
-            <div class="room-info" id="roomInfo">
-                Double Room - Ideal for couples
-            </div>
         </div>
 
         <div class="main-content">
-            <div id="map">
-                <div class="map-loading" id="mapLoading">
-                    🗺️ Loading OpenStreetMap...
-                </div>
-            </div>
+            <div id="map">🗺️ Map will load when you search for hotels</div>
             <div class="hotels-panel">
                 <h3 id="hotelsTitle">Hotels</h3>
                 <div id="hotelsList">
-                    <div class="loading">Choose your room type and click "Search Hotels" to find real hotels from Booking.com</div>
+                    <div class="loading">Click "Search Hotels" to find real hotels with accurate stay pricing</div>
                 </div>
                 <div id="loadMoreContainer" style="display: none; text-align: center; margin-top: 15px;">
                     <button id="loadMoreBtn" class="search-btn" style="width: 100%;">
@@ -498,32 +451,26 @@
 
         <!-- Terms of Service Section -->
         <div class="terms-section">
-            <h2>📋 Terms of Service & Privacy</h2>
+            <h2>📋 Terms of Service</h2>
             <div class="terms-content">
-                <div class="terms-box">
-                    <h3>🏨 Hotel Booking</h3>
-                    <p>STAYFINDR connects you directly to Booking.com for hotel reservations. All bookings are processed by Booking.com under their terms and conditions.</p>
-                    <p>We do not handle payments or reservations directly. Your booking contract is with the hotel and Booking.com.</p>
-                </div>
-                <div class="terms-box">
-                    <h3>🔒 Privacy & Data</h3>
-                    <p>We respect your privacy and comply with GDPR regulations. Your search data is used only to provide hotel results and is not stored permanently.</p>
-                    <p>No personal information is collected without your consent. Booking data is handled by Booking.com according to their privacy policy.</p>
-                </div>
-                <div class="terms-box">
-                    <h3>💰 Pricing & Accuracy</h3>
-                    <p>All prices are provided in real-time by Booking.com and may change. Final prices are confirmed during the booking process on Booking.com.</p>
-                    <p>STAYFINDR is not responsible for price discrepancies or booking issues. Please verify all details on Booking.com before confirming your reservation.</p>
-                </div>
-                <div class="terms-box">
-                    <h3>🌍 Service Availability</h3>
-                    <p>Our service covers 29 major European cities. Availability depends on Booking.com's inventory and real-time data feeds.</p>
-                    <p>Service may be temporarily unavailable due to maintenance or technical issues. We strive for 99% uptime but cannot guarantee uninterrupted service.</p>
-                </div>
+                <h3>Service Description</h3>
+                <p>STAYFINDR is a hotel search and comparison service that connects users to Booking.com's inventory. We provide accurate pricing information and facilitate bookings through our partner platform.</p>
+                
+                <h3>Booking Terms</h3>
+                <p>All hotel bookings are processed through Booking.com. STAYFINDR acts as an intermediary service. Final booking terms, cancellation policies, and pricing are governed by Booking.com's terms and conditions.</p>
+                
+                <h3>Pricing Accuracy</h3>
+                <p>Prices displayed are total costs for your entire stay, calculated from real-time data. While we strive for accuracy, final prices may vary due to availability changes, taxes, or booking conditions on Booking.com.</p>
+                
+                <h3>Privacy & Data</h3>
+                <p>We collect minimal data necessary for service functionality. Search preferences and analytics are used to improve our service. We do not store personal payment information - all transactions are handled securely by Booking.com.</p>
+                
+                <h3>Limitation of Liability</h3>
+                <p>STAYFINDR provides search and comparison services only. We are not responsible for hotel service quality, booking issues, or disputes that may arise during your stay. Please contact Booking.com directly for booking support.</p>
             </div>
         </div>
 
-        <!-- About STAYFINDR Section -->
+        <!-- About Section -->
         <div class="about-section">
             <h2>🏨 About STAYFINDR</h2>
             <div class="about-content">
@@ -541,10 +488,7 @@
         </div>
     </div>
 
-    <!-- OpenStreetMap with Leaflet - No API key required! -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-            crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <script>
         let map;
         let currentMarkers = [];
@@ -553,142 +497,133 @@
         let currentlyShowing = 5;
         const BACKEND_URL = 'https://actionly.onrender.com';
 
-        // Room type configurations with descriptions
-        const ROOM_TYPES = {
-            single: {
-                guests: 1,
-                description: "Single Room - Perfect for solo travelers",
-                searchDescription: "Cozy single room - Ready to search!"
-            },
-            double: {
-                guests: 2,
-                description: "Double Room - Ideal for couples",
-                searchDescription: "Comfortable double room - Ready to search!"
-            },
-            family: {
-                guests: 4,
-                description: "Family Room - Great for families with children",
-                searchDescription: "Spacious family room - Ready to search!"
-            },
-            junior_suite: {
-                guests: 2,
-                description: "Junior Suite - Spacious room with sitting area",
-                searchDescription: "Luxurious junior suite - Ready to search!"
-            },
-            suite: {
-                guests: 3,
-                description: "Suite/Apartment - Premium accommodation",
-                searchDescription: "Premium suite with extra space - Ready to search!"
-            }
+        // Room type descriptions for UI feedback
+        const roomTypeDescriptions = {
+            'single': 'Perfect for solo travelers - Ready to search!',
+            'double': 'Ideal for couples - Ready to search!',
+            'family': 'Spacious accommodation for families - Ready to search!',
+            'junior_suite': 'Spacious room with sitting area - Ready to search!',
+            'suite': 'Luxury accommodation with separate living area - Ready to search!'
         };
 
-        // Enhanced map initialization with Leaflet loading check
-        function initMap() {
-            try {
-                console.log('🗺️ Waiting for Leaflet to load...');
+        // Wait for Leaflet to load properly with retry mechanism
+        function waitForLeaflet() {
+            return new Promise((resolve) => {
+                let attempts = 0;
+                const maxAttempts = 30; // 15 seconds max wait
                 
-                // Check if Leaflet is loaded
-                if (typeof L === 'undefined') {
-                    console.log('⏳ Leaflet not ready yet, waiting...');
-                    setTimeout(initMap, 500); // Retry every 500ms
+                function checkLeaflet() {
+                    attempts++;
+                    if (typeof L !== 'undefined' && L.map) {
+                        console.log('✅ Leaflet loaded successfully');
+                        resolve();
+                    } else if (attempts >= maxAttempts) {
+                        console.log('❌ Leaflet failed to load after 15 seconds, proceeding without map');
+                        resolve();
+                    } else {
+                        console.log(`⏳ Waiting for Leaflet... (${attempts}/${maxAttempts})`);
+                        setTimeout(checkLeaflet, 500);
+                    }
+                }
+                checkLeaflet();
+            });
+        }
+
+        // Alternative: Load Leaflet dynamically if not available
+        function loadLeafletDynamically() {
+            return new Promise((resolve) => {
+                if (typeof L !== 'undefined') {
+                    resolve();
                     return;
                 }
-                
-                console.log('🗺️ Initializing OpenStreetMap...');
-                
-                // Hide loading indicator
-                const mapLoading = document.getElementById('mapLoading');
-                if (mapLoading) mapLoading.style.display = 'none';
 
-                // Initialize map with Stockholm as default center
-                map = L.map('map').setView([59.3293, 18.0686], 6);
+                const cssLink = document.createElement('link');
+                cssLink.rel = 'stylesheet';
+                cssLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css';
+                document.head.appendChild(cssLink);
 
-                // Add OpenStreetMap tile layer - NO API KEY REQUIRED!
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors',
-                    maxZoom: 19,
-                    subdomains: ['a', 'b', 'c']
-                }).addTo(map);
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js';
+                script.onload = () => {
+                    console.log('✅ Leaflet loaded dynamically from CDNJS');
+                    setTimeout(resolve, 100); // Small delay to ensure full load
+                };
+                script.onerror = () => {
+                    console.log('❌ Failed to load Leaflet from CDNJS');
+                    resolve();
+                };
+                document.head.appendChild(script);
+            });
+        }
 
-                console.log('✅ OpenStreetMap initialized successfully');
-                
-                // Update status to show map is ready
-                setTimeout(() => {
-                    testBackendConnection();
-                }, 1000);
-                
-            } catch (error) {
-                console.error('❌ Map initialization failed:', error);
-                const mapLoading = document.getElementById('mapLoading');
-                if (mapLoading) {
-                    mapLoading.innerHTML = '❌ Map unavailable - Search still works!';
-                }
-                // Still test backend connection even if map fails
-                testBackendConnection();
-            }
+        // Initialize the application
+        function initializeApp() {
+            console.log('🚀 Initializing STAYFINDR with accurate stay pricing...');
+            
+            testBackendConnection();
+            initMap();
+            setupEventListeners();
+            setDefaultDates();
+            
+            console.log('✅ STAYFINDR initialized successfully');
         }
 
         async function testBackendConnection() {
-            const statusEl = document.getElementById('connectionStatus');
-            let attempts = 0;
-            const maxAttempts = 3;
-
-            async function attemptConnection() {
-                attempts++;
-                console.log(`🔗 Backend connection attempt ${attempts}/${maxAttempts}`);
-                
-                try {
-                    statusEl.innerHTML = `⏳ Connecting to backend (attempt ${attempts}/${maxAttempts})...`;
-                    
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-                    
-                    const response = await fetch(`${BACKEND_URL}/api/cities`, {
-                        signal: controller.signal
-                    });
-                    
-                    clearTimeout(timeoutId);
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        statusEl.innerHTML = `✅ Backend ready! ${data.total} cities available`;
-                        statusEl.className = 'status success-indicator';
-                        console.log('✅ Backend connection successful');
-                        return true;
-                    } else {
-                        throw new Error(`HTTP ${response.status}`);
-                    }
-                } catch (error) {
-                    console.log(`❌ Connection attempt ${attempts} failed:`, error.message);
-                    
-                    if (attempts < maxAttempts) {
-                        statusEl.innerHTML = `⏳ Backend starting up... Retrying in ${3 * attempts} seconds (${attempts}/${maxAttempts})`;
-                        setTimeout(attemptConnection, 3000 * attempts); // Exponential backoff
-                    } else {
-                        statusEl.innerHTML = '❌ Backend connection failed. <button class="retry-btn" onclick="testBackendConnection()">🔄 Try Again</button>';
-                        statusEl.className = 'status error';
-                    }
-                    return false;
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/cities`);
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('connectionStatus').innerHTML = `✅ Backend ready! ${data.total} cities available`;
+                    document.getElementById('connectionStatus').className = 'status success-indicator';
+                } else {
+                    throw new Error('Backend not responding');
                 }
+            } catch (error) {
+                document.getElementById('connectionStatus').innerHTML = '❌ Backend connection failed. <button class="retry-btn" onclick="testBackendConnection()">🔄 Try Again</button>';
+                document.getElementById('connectionStatus').className = 'status error';
             }
-
-            return attemptConnection();
         }
 
-        function updateRoomInfo() {
-            const roomType = document.getElementById('roomType').value;
-            const roomConfig = ROOM_TYPES[roomType];
-            const roomInfoEl = document.getElementById('roomInfo');
-            
-            if (roomConfig) {
-                // Update guests automatically
-                document.getElementById('guests').value = roomConfig.guests;
-                
-                // Show room description
-                roomInfoEl.textContent = roomConfig.searchDescription;
-                roomInfoEl.style.color = '#27ae60';
-                roomInfoEl.style.fontWeight = '500';
+        function initMap() {
+            try {
+                if (typeof L !== 'undefined' && L.map) {
+                    map = L.map('map').setView([59.3293, 18.0686], 6);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© OpenStreetMap contributors',
+                        maxZoom: 18
+                    }).addTo(map);
+                    console.log('🗺️ OpenStreetMap initialized successfully');
+                    document.getElementById('map').style.background = 'none';
+                } else {
+                    console.log('⚠️ Leaflet not available, using fallback');
+                    document.getElementById('map').innerHTML = `
+                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #666;">
+                            <div style="font-size: 2rem; margin-bottom: 10px;">🗺️</div>
+                            <div>Interactive map will appear when you search</div>
+                            <button onclick="retryMapLoad()" style="margin-top: 10px; padding: 8px 16px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                                🔄 Retry Map Loading
+                            </button>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Map initialization failed:', error);
+                document.getElementById('map').innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #666;">
+                        ❌ Map temporarily unavailable<br>
+                        <small>Search functionality works perfectly!</small>
+                    </div>
+                `;
             }
+        }
+
+        async function retryMapLoad() {
+            console.log('🔄 Retrying map load...');
+            document.getElementById('map').innerHTML = '<div style="text-align: center; padding: 50px; color: #666;">⏳ Loading map...</div>';
+            
+            await loadLeafletDynamically();
+            await waitForLeaflet();
+            initMap();
         }
 
         function setupEventListeners() {
@@ -698,11 +633,7 @@
                     e.preventDefault();
                     searchHotels();
                 });
-            }
-
-            const roomTypeSelect = document.getElementById('roomType');
-            if (roomTypeSelect) {
-                roomTypeSelect.addEventListener('change', updateRoomInfo);
+                console.log('📋 Form event listeners setup');
             }
 
             const loadMoreBtn = document.getElementById('loadMoreBtn');
@@ -712,7 +643,38 @@
                 });
             }
 
-            console.log('📋 Event listeners setup complete');
+            // Room type change handler with smart guest updating
+            const roomTypeSelect = document.getElementById('roomType');
+            const guestsSelect = document.getElementById('guests');
+            const roomTypeHint = document.getElementById('roomTypeHint');
+
+            if (roomTypeSelect && guestsSelect && roomTypeHint) {
+                roomTypeSelect.addEventListener('change', function() {
+                    const roomType = this.value;
+                    
+                    // Update guests automatically based on room type
+                    switch(roomType) {
+                        case 'single':
+                            guestsSelect.value = '1';
+                            break;
+                        case 'double':
+                            guestsSelect.value = '2';
+                            break;
+                        case 'family':
+                            guestsSelect.value = '4';
+                            break;
+                        case 'junior_suite':
+                            guestsSelect.value = '2';
+                            break;
+                        case 'suite':
+                            guestsSelect.value = '3';
+                            break;
+                    }
+                    
+                    // Update hint text
+                    roomTypeHint.textContent = roomTypeDescriptions[roomType] || 'Ready to search!';
+                });
+            }
         }
 
         function setDefaultDates() {
@@ -730,7 +692,7 @@
             const checkout = document.getElementById('checkout').value;
             const guests = document.getElementById('guests').value;
 
-            console.log(`🔍 Searching: ${city}, ${roomType}, ${checkin} to ${checkout}, ${guests} guests`);
+            console.log(`🔍 Searching hotels: ${city}, ${roomType}, ${checkin} to ${checkout}, ${guests} guests`);
 
             const searchButton = document.getElementById('searchButton');
             const hotelsList = document.getElementById('hotelsList');
@@ -738,28 +700,17 @@
 
             searchButton.disabled = true;
             searchButton.innerHTML = '⏳ Searching...';
-            hotelsList.innerHTML = '<div class="loading">🔍 Searching hotels with room type preferences...</div>';
+            hotelsList.innerHTML = '<div class="loading">🔍 Searching real hotels with accurate stay pricing...</div>';
             hotelsTitle.innerHTML = `Hotels in ${city}`;
 
             try {
-                const apiUrl = `${BACKEND_URL}/api/hotels?city=${city}&room_type=${roomType}&checkin=${checkin}&checkout=${checkout}&adults=${guests}&rooms=1`;
-                console.log('🌐 API URL:', apiUrl);
-
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 30000);
-
-                const response = await fetch(apiUrl, {
-                    signal: controller.signal
-                });
+                const response = await fetch(`${BACKEND_URL}/api/hotels?city=${city}&room_type=${roomType}&checkin=${checkin}&checkout=${checkout}&adults=${guests}&rooms=1`);
                 
-                clearTimeout(timeoutId);
-
                 if (!response.ok) {
                     throw new Error(`API error: ${response.status}`);
                 }
 
                 const data = await response.json();
-                console.log('📊 Hotel data received:', data);
 
                 if (data.error) {
                     throw new Error(data.error);
@@ -769,7 +720,7 @@
                     allHotelsData = data.hotels;
                     currentlyShowing = 5;
                     
-                    displayHotels(data.hotels.slice(0, 5), data.city, roomType);
+                    displayHotels(data.hotels.slice(0, 5), data.city, data.pricing);
                     updateMap(data.hotels.slice(0, 5));
                     
                     const loadMoreContainer = document.getElementById('loadMoreContainer');
@@ -780,8 +731,9 @@
                         loadMoreContainer.style.display = 'none';
                     }
                     
+                    const nights = data.search_params.nights || 1;
                     document.getElementById('connectionStatus').innerHTML = 
-                        `✅ Found ${data.total_found} hotels in ${data.city}! (Showing ${Math.min(5, data.hotels.length)})`;
+                        `✅ Found ${data.total_found} hotels in ${data.city}! Showing total cost for ${nights} nights (${Math.min(5, data.hotels.length)} displayed)`;
                     document.getElementById('connectionStatus').className = 'status success-indicator';
                 } else {
                     hotelsList.innerHTML = '<div class="error">No hotels found for this city and dates.</div>';
@@ -789,23 +741,8 @@
                 }
 
             } catch (error) {
-                console.error('❌ Search error:', error);
-                let errorMessage = 'Search failed. ';
-                
-                if (error.name === 'AbortError') {
-                    errorMessage += 'Request timeout - backend may be starting up.';
-                } else if (error.message.includes('Failed to fetch')) {
-                    errorMessage += 'Backend connection failed.';
-                } else {
-                    errorMessage += error.message;
-                }
-                
-                hotelsList.innerHTML = `
-                    <div class="error">
-                        ${errorMessage}
-                        <br><button class="retry-btn" onclick="searchHotels()">🔄 Try Again</button>
-                    </div>
-                `;
+                console.error('Search error:', error);
+                hotelsList.innerHTML = `<div class="error">Error: ${error.message}</div>`;
                 
                 document.getElementById('connectionStatus').innerHTML = '❌ Search failed - Check backend connection';
                 document.getElementById('connectionStatus').className = 'status error';
@@ -818,11 +755,10 @@
         function showMoreHotels() {
             const nextBatch = Math.min(currentlyShowing + 5, allHotelsData.length);
             const hotelsToShow = allHotelsData.slice(0, nextBatch);
-            const roomType = document.getElementById('roomType').value;
             
             currentlyShowing = nextBatch;
             
-            displayHotels(hotelsToShow, '', roomType);
+            displayHotels(hotelsToShow, '');
             updateMap(hotelsToShow);
             updateLoadMoreButton();
             
@@ -842,15 +778,15 @@
             }
         }
 
-        function displayHotels(hotels, cityName, roomType) {
+        function displayHotels(hotels, cityName, pricingInfo) {
             currentHotels = hotels;
             const hotelsList = document.getElementById('hotelsList');
-            const roomConfig = ROOM_TYPES[roomType] || ROOM_TYPES.double;
 
             let html = '';
             hotels.forEach((hotel, index) => {
                 const priceDisplay = hotel.price !== 'N/A' ? `€${hotel.price}/stay` : 'Price on request';
                 const stars = '⭐'.repeat(Math.floor(hotel.rating));
+                const nights = hotel.nights || 1;
 
                 html += `
                     <div class="hotel-card" data-hotel-id="${hotel.id}" 
@@ -858,13 +794,15 @@
                          onmouseout="unhighlightMarker(${index})">
                         <div class="hotel-name">${hotel.name}</div>
                         <div class="hotel-details">📍 ${hotel.address}</div>
-                        <div class="hotel-details room-info">🏨 ${roomConfig.description}</div>
+                        ${hotel.room_description ? `<div class="room-info">${hotel.room_description}</div>` : ''}
                         <div class="price-info">
                             <span class="price">${priceDisplay}</span>
                             <span class="rating">${stars} ${hotel.rating}/5</span>
                         </div>
+                        ${nights > 1 ? `<div style="font-size: 0.8rem; color: #666; margin-bottom: 8px;">Total for ${nights} nights</div>` : ''}
                         <div class="hotel-actions">
-                            <a href="${hotel.booking_url}" target="_blank" class="action-btn book-btn">
+                            <a href="${hotel.booking_url}" target="_blank" class="action-btn book-btn" 
+                               onclick="trackBookingClick('${hotel.id}', '${hotel.name}', '${cityName}', '${hotel.room_type || 'double'}', '${hotel.price}')">
                                 Book on Booking.com
                             </a>
                         </div>
@@ -875,51 +813,58 @@
             hotelsList.innerHTML = html;
         }
 
+        function trackBookingClick(hotelId, hotelName, city, roomType, price) {
+            // Track booking button clicks for analytics
+            try {
+                fetch(`${BACKEND_URL}/api/analytics/track-click`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        hotel_id: hotelId,
+                        hotel_name: hotelName,
+                        city: city,
+                        room_type: roomType,
+                        price: price
+                    })
+                });
+                console.log(`📊 Tracked booking click: ${hotelName} in ${city}`);
+            } catch (error) {
+                console.log('Analytics tracking failed:', error);
+            }
+        }
+
         function updateMap(hotels) {
             if (!map || typeof L === 'undefined') {
-                console.log('⚠️ Map or Leaflet not ready yet');
+                console.log('Map not available, skipping update');
                 return;
             }
 
-            // Clear existing markers
-            currentMarkers.forEach(marker => {
-                try {
-                    map.removeLayer(marker);
-                } catch (e) {
-                    console.log('⚠️ Error removing marker:', e);
-                }
-            });
-            currentMarkers = [];
+            try {
+                currentMarkers.forEach(marker => map.removeLayer(marker));
+                currentMarkers = [];
 
-            if (hotels.length > 0) {
-                try {
+                if (hotels.length > 0) {
                     const center = hotels[0].coordinates;
                     map.setView(center, 12);
 
                     hotels.forEach((hotel, index) => {
-                        // Create custom hotel icon
-                        const hotelIcon = L.divIcon({
-                            html: '<div style="background: #e74c3c; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">🏨</div>',
-                            iconSize: [30, 30],
-                            className: 'custom-hotel-marker'
-                        });
-
-                        const marker = L.marker(hotel.coordinates, { icon: hotelIcon })
+                        const marker = L.marker(hotel.coordinates)
                             .addTo(map)
                             .bindPopup(`
                                 <b>${hotel.name}</b><br>
-                                ${hotel.price !== 'N/A' ? `€${hotel.price}/night` : 'Price on request'}<br>
+                                ${hotel.price !== 'N/A' ? `€${hotel.price}/stay` : 'Price on request'}<br>
                                 ⭐ ${hotel.rating}/5
+                                ${hotel.nights > 1 ? `<br><small>Total for ${hotel.nights} nights</small>` : ''}
                             `);
 
                         marker.on('click', () => highlightHotelCard(index));
                         currentMarkers.push(marker);
                     });
-                    
-                    console.log(`🗺️ Map updated with ${hotels.length} hotel markers`);
-                } catch (error) {
-                    console.error('❌ Error updating map:', error);
                 }
+            } catch (error) {
+                console.error('Map update failed:', error);
             }
         }
 
@@ -927,8 +872,8 @@
             if (currentMarkers[index] && typeof L !== 'undefined') {
                 try {
                     currentMarkers[index].openPopup();
-                } catch (e) {
-                    console.log('⚠️ Error highlighting marker:', e);
+                } catch (error) {
+                    console.log('Marker highlight failed:', error);
                 }
             }
         }
@@ -937,18 +882,16 @@
             if (currentMarkers[index] && typeof L !== 'undefined') {
                 try {
                     currentMarkers[index].closePopup();
-                } catch (e) {
-                    console.log('⚠️ Error unhighlighting marker:', e);
+                } catch (error) {
+                    console.log('Marker unhighlight failed:', error);
                 }
             }
         }
 
         function highlightHotelCard(index) {
-            // Remove highlight from all cards
             document.querySelectorAll('.hotel-card').forEach(card => 
                 card.classList.remove('highlighted'));
 
-            // Highlight the selected card
             const targetCard = document.querySelector(`[data-hotel-id="${currentHotels[index].id}"]`);
             if (targetCard) {
                 targetCard.classList.add('highlighted');
@@ -957,22 +900,13 @@
         }
 
         // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('📄 STAYFINDR initializing...');
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('📄 Page loaded, initializing STAYFINDR...');
             
-            // Set up room info initially
-            updateRoomInfo();
-            
-            // Set default dates
-            setDefaultDates();
-            
-            // Setup event listeners
-            setupEventListeners();
-            
-            // Initialize map
-            initMap();
-            
-            console.log('✅ STAYFINDR initialized successfully');
+            // Try multiple loading strategies
+            await loadLeafletDynamically();
+            await waitForLeaflet();
+            initializeApp();
         });
     </script>
 </body>
