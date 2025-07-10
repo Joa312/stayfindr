@@ -849,7 +849,7 @@
 
             let html = '';
             hotels.forEach((hotel, index) => {
-                const priceDisplay = hotel.price !== 'N/A' ? `€${hotel.price}/night` : 'Price on request';
+                const priceDisplay = hotel.price !== 'N/A' ? `€${hotel.price}/stay` : 'Price on request';
                 const stars = '⭐'.repeat(Math.floor(hotel.rating));
 
                 html += `
