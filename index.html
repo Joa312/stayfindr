@@ -244,6 +244,49 @@
             margin-bottom: 10px;
         }
 
+        /* About Section */
+        .about-section {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .about-section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .about-content p {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        .contact-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #27ae60;
+            margin-top: 20px;
+        }
+        .contact-info h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        .contact-info p {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        .contact-info a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        .contact-info a:hover {
+            text-decoration: underline;
+        }
+
         /* Mobile fixes */
         @media (max-width: 768px) {
             body {
@@ -312,7 +355,7 @@
                 grid-template-columns: 1fr !important;
                 gap: 15px !important;
             }
-            .terms-section {
+            .terms-section, .about-section {
                 padding: 20px !important;
                 margin-top: 20px !important;
             }
@@ -479,6 +522,23 @@
                 </div>
             </div>
         </div>
+
+        <!-- About STAYFINDR Section -->
+        <div class="about-section">
+            <h2>🏨 About STAYFINDR</h2>
+            <div class="about-content">
+                <p>STAYFINDR is your smart hotel search partner that helps you find the best hotel prices across Europe. We connect you directly to Booking.com's extensive inventory with real-time data from 29 major European cities.</p>
+                
+                <p>Our mission is simple: <strong>Show you real-time data that saves your time and money</strong> by displaying relevant hotel options based on your specific needs - from single rooms to luxurious junior suites.</p>
+                
+                <div class="contact-info">
+                    <h3>📧 Contact Us</h3>
+                    <p>Have questions or feedback? We'd love to hear from you!</p>
+                    <p><strong>Email:</strong> <a href="mailto:hello@stayfindr.com">hello@stayfindr.com</a></p>
+                    <p><em>We respond within 24 hours</em></p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- OpenStreetMap with Leaflet - No API key required! -->
@@ -522,9 +582,18 @@
             }
         };
 
-        // Enhanced map initialization with better error handling
+        // Enhanced map initialization with Leaflet loading check
         function initMap() {
             try {
+                console.log('🗺️ Waiting for Leaflet to load...');
+                
+                // Check if Leaflet is loaded
+                if (typeof L === 'undefined') {
+                    console.log('⏳ Leaflet not ready yet, waiting...');
+                    setTimeout(initMap, 500); // Retry every 500ms
+                    return;
+                }
+                
                 console.log('🗺️ Initializing OpenStreetMap...');
                 
                 // Hide loading indicator
@@ -550,7 +619,12 @@
                 
             } catch (error) {
                 console.error('❌ Map initialization failed:', error);
-                document.getElementById('mapLoading').innerHTML = '❌ Map unavailable - Search still works!';
+                const mapLoading = document.getElementById('mapLoading');
+                if (mapLoading) {
+                    mapLoading.innerHTML = '❌ Map unavailable - Search still works!';
+                }
+                // Still test backend connection even if map fails
+                testBackendConnection();
             }
         }
 
@@ -802,52 +876,70 @@
         }
 
         function updateMap(hotels) {
-            if (!map) {
-                console.log('⚠️ Map not initialized yet');
+            if (!map || typeof L === 'undefined') {
+                console.log('⚠️ Map or Leaflet not ready yet');
                 return;
             }
 
             // Clear existing markers
-            currentMarkers.forEach(marker => map.removeLayer(marker));
+            currentMarkers.forEach(marker => {
+                try {
+                    map.removeLayer(marker);
+                } catch (e) {
+                    console.log('⚠️ Error removing marker:', e);
+                }
+            });
             currentMarkers = [];
 
             if (hotels.length > 0) {
-                const center = hotels[0].coordinates;
-                map.setView(center, 12);
+                try {
+                    const center = hotels[0].coordinates;
+                    map.setView(center, 12);
 
-                hotels.forEach((hotel, index) => {
-                    // Create custom hotel icon
-                    const hotelIcon = L.divIcon({
-                        html: '<div style="background: #e74c3c; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">🏨</div>',
-                        iconSize: [30, 30],
-                        className: 'custom-hotel-marker'
+                    hotels.forEach((hotel, index) => {
+                        // Create custom hotel icon
+                        const hotelIcon = L.divIcon({
+                            html: '<div style="background: #e74c3c; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">🏨</div>',
+                            iconSize: [30, 30],
+                            className: 'custom-hotel-marker'
+                        });
+
+                        const marker = L.marker(hotel.coordinates, { icon: hotelIcon })
+                            .addTo(map)
+                            .bindPopup(`
+                                <b>${hotel.name}</b><br>
+                                ${hotel.price !== 'N/A' ? `€${hotel.price}/night` : 'Price on request'}<br>
+                                ⭐ ${hotel.rating}/5
+                            `);
+
+                        marker.on('click', () => highlightHotelCard(index));
+                        currentMarkers.push(marker);
                     });
-
-                    const marker = L.marker(hotel.coordinates, { icon: hotelIcon })
-                        .addTo(map)
-                        .bindPopup(`
-                            <b>${hotel.name}</b><br>
-                            ${hotel.price !== 'N/A' ? `€${hotel.price}/night` : 'Price on request'}<br>
-                            ⭐ ${hotel.rating}/5
-                        `);
-
-                    marker.on('click', () => highlightHotelCard(index));
-                    currentMarkers.push(marker);
-                });
-                
-                console.log(`🗺️ Map updated with ${hotels.length} hotel markers`);
+                    
+                    console.log(`🗺️ Map updated with ${hotels.length} hotel markers`);
+                } catch (error) {
+                    console.error('❌ Error updating map:', error);
+                }
             }
         }
 
         function highlightMarker(index) {
-            if (currentMarkers[index]) {
-                currentMarkers[index].openPopup();
+            if (currentMarkers[index] && typeof L !== 'undefined') {
+                try {
+                    currentMarkers[index].openPopup();
+                } catch (e) {
+                    console.log('⚠️ Error highlighting marker:', e);
+                }
             }
         }
 
         function unhighlightMarker(index) {
-            if (currentMarkers[index]) {
-                currentMarkers[index].closePopup();
+            if (currentMarkers[index] && typeof L !== 'undefined') {
+                try {
+                    currentMarkers[index].closePopup();
+                } catch (e) {
+                    console.log('⚠️ Error unhighlighting marker:', e);
+                }
             }
         }
 
