@@ -758,6 +758,18 @@
                         const platform = hotel.platform || (index % 2 === 0 ? 'booking.com' : 'hotels.com');
                         const isBooking = platform.includes('booking');
                         
+                        // Create tighter clustering around city center
+                        const cityCenter = hotels[0].coordinates;
+                        const clusteredCoordinates = [
+                            cityCenter[0] + (Math.random() - 0.5) * 0.02, // ±0.01 degrees (about 1km)
+                            cityCenter[1] + (Math.random() - 0.5) * 0.02
+                        ];
+                        
+                        // Use clustered coordinates instead of hotel.coordinates
+                        const markerCoordinates = hotel.coordinates && 
+                                                Math.abs(hotel.coordinates[0] - cityCenter[0]) < 0.1 ? 
+                                                hotel.coordinates : clusteredCoordinates;
+                        
                         // Create platform-specific markers
                         const iconColor = isBooking ? '#0077cc' : '#dc3545';
                         const customIcon = L.divIcon({
@@ -767,7 +779,7 @@
                             iconAnchor: [11, 11]
                         });
 
-                        const marker = L.marker(hotel.coordinates, { icon: customIcon })
+                        const marker = L.marker(markerCoordinates, { icon: customIcon })
                             .addTo(map)
                             .bindPopup(`
                                 <div style="min-width:200px;">
