@@ -455,6 +455,13 @@
         async function initializeApp() {
             console.log('🚀 Initializing STAYFINDR with FORCED map loading...');
             
+            // Prevent multiple initializations
+            if (window.stayfindrInitialized) {
+                console.log('⚠️ STAYFINDR already initialized, skipping...');
+                return;
+            }
+            window.stayfindrInitialized = true;
+            
             // Always setup basic functionality first
             setupEventListeners();
             setDefaultDates();
@@ -469,7 +476,6 @@
                 try {
                     initMap();
                     console.log('🎉 MAP SUCCESSFULLY LOADED!');
-                    document.getElementById('map').style.border = '3px solid #27ae60';
                 } catch (error) {
                     console.error('⚠️ Map initialization failed:', error);
                     showMapError();
@@ -559,20 +565,56 @@
                 throw new Error('Leaflet not available');
             }
             
-            // Initialize map with success message
-            map = L.map('map').setView([59.3293, 18.0686], 6);
+            // Check if map is already initialized
+            if (map) {
+                console.log('🗺️ Map already exists, skipping initialization');
+                return;
+            }
             
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
+            // Clear any existing map container content
+            const mapContainer = document.getElementById('map');
+            mapContainer.innerHTML = '';
             
-            // Add success indicator
-            const successDiv = document.createElement('div');
-            successDiv.style.cssText = 'position: absolute; top: 10px; right: 10px; background: #27ae60; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; z-index: 1000;';
-            successDiv.innerHTML = '🗺️ Map Active';
-            document.getElementById('map').appendChild(successDiv);
-            
-            console.log('🗺️ Map initialized with success indicator');
+            try {
+                // Initialize map with success message
+                map = L.map('map').setView([59.3293, 18.0686], 6);
+                
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
+                
+                // Add success indicator
+                const successDiv = document.createElement('div');
+                successDiv.style.cssText = 'position: absolute; top: 10px; right: 10px; background: #27ae60; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; z-index: 1000;';
+                successDiv.innerHTML = '🗺️ Map Active';
+                mapContainer.appendChild(successDiv);
+                
+                console.log('🗺️ Map initialized successfully with success indicator');
+                
+                // Add green border to show success
+                mapContainer.style.border = '3px solid #27ae60';
+                
+            } catch (error) {
+                console.error('Map initialization error:', error);
+                // If initialization fails, clear the container and try again
+                mapContainer.innerHTML = '';
+                map = null;
+                
+                // Try one more time after clearing
+                setTimeout(() => {
+                    try {
+                        map = L.map('map').setView([59.3293, 18.0686], 6);
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            attribution: '© OpenStreetMap contributors'
+                        }).addTo(map);
+                        console.log('🗺️ Map initialized on second attempt');
+                        mapContainer.style.border = '3px solid #27ae60';
+                    } catch (retryError) {
+                        console.error('Map initialization failed on retry:', retryError);
+                        throw retryError;
+                    }
+                }, 1000);
+            }
         }
 
         function setupEventListeners() {
@@ -770,19 +812,22 @@
             }
         }
 
-        // Initialize when page loads
+        // Initialize when page loads - prevent double initialization
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('📄 Page loaded - FORCING map initialization...');
-            // Small delay to ensure all scripts loaded
-            setTimeout(initializeApp, 500);
+            console.log('📄 Page loaded - checking if initialization needed...');
+            if (!window.stayfindrInitialized) {
+                console.log('🚀 Starting STAYFINDR initialization...');
+                setTimeout(initializeApp, 500);
+            }
         });
         
-        // Backup initialization if DOMContentLoaded missed
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeApp);
-        } else {
-            setTimeout(initializeApp, 100);
-        }
+        // Single backup initialization
+        window.addEventListener('load', function() {
+            if (!window.stayfindrInitialized) {
+                console.log('🔄 Backup initialization triggered');
+                setTimeout(initializeApp, 100);
+            }
+        });
     </script>
 </body>
 </html>
