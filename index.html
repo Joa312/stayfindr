@@ -559,8 +559,9 @@
                     displayHotels(data.hotels, data.city);
                     updateMap(data.hotels);
                     
+                    let nightWord = nights === 1 ? 'stay' : 'stays';
                     document.getElementById('connectionStatus').innerHTML = 
-                        `✅ Found ${data.hotels.length} hotels in ${data.city} (${nights} night${nights > 1 ? 's' : ''})`;
+                        `✅ Found ${data.hotels.length} hotels in ${data.city} (${nights} ${nightWord})`;
                     document.getElementById('connectionStatus').className = 'status success-indicator';
                 } else {
                     hotelsList.innerHTML = '<div class="error">No hotels found for this city and dates.</div>';
@@ -584,12 +585,12 @@
 
             let html = '';
             hotels.forEach((hotel, index) => {
-                // CRITICAL FIX: Always show as /stay pricing
-                let priceDisplay;
+                // GUARANTEED: Always show as /stay pricing - NO /day references anywhere
                 const currency = hotel.currency || 'SEK';
+                let priceDisplay;
                 
-                if (currentSearchParams.nights && currentSearchParams.nights > 1) {
-                    priceDisplay = `${currency} ${hotel.price}/stay (${currentSearchParams.nights} nights)`;
+                if (currentSearchParams.nights > 1) {
+                    priceDisplay = `${currency} ${hotel.price}/stay (${currentSearchParams.nights} days)`;
                 } else {
                     priceDisplay = `${currency} ${hotel.price}/stay`;
                 }
@@ -640,12 +641,12 @@
                 map.setView(center, 12);
 
                 hotels.forEach((hotel, index) => {
-                    // CRITICAL FIX: Map popup also shows /stay pricing
-                    let priceDisplay;
+                    // GUARANTEED: Map popup also shows /stay pricing - NO /day references
                     const currency = hotel.currency || 'SEK';
+                    let priceDisplay;
                     
-                    if (currentSearchParams.nights && currentSearchParams.nights > 1) {
-                        priceDisplay = `${currency} ${hotel.price}/stay (${currentSearchParams.nights} nights)`;
+                    if (currentSearchParams.nights > 1) {
+                        priceDisplay = `${currency} ${hotel.price}/stay (${currentSearchParams.nights} days)`;
                     } else {
                         priceDisplay = `${currency} ${hotel.price}/stay`;
                     }
