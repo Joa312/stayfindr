@@ -867,7 +867,7 @@
 
             let html = '';
             hotels.forEach((hotel, index) => {
-                const priceDisplay = hotel.price !== 'N/A' ? `€${hotel.price}/night` : 'Price on request';
+                const priceDisplay = hotel.price !== 'N/A' ? `€${hotel.price}/stay` : 'Price on request';
                 const stars = '⭐'.repeat(Math.floor(hotel.rating));
                 
                 // Determine source-specific styling
@@ -911,7 +911,7 @@
                         .addTo(map)
                         .bindPopup(`
                             <b>${hotel.name}</b><br>
-                            ${hotel.price !== 'N/A' ? `€${hotel.price}/night` : 'Price on request'}<br>
+                            ${hotel.price !== 'N/A' ? `€${hotel.price}/stay` : 'Price on request'}<br>
                             ⭐ ${hotel.rating}/5<br>
                             ${hotel.room_type ? `<em>${hotel.room_type}</em>` : ''}
                         `);
