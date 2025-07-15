@@ -352,6 +352,16 @@
             margin: 10px 0;
         }
         
+        .error h4 {
+            margin: 0 0 10px 0;
+            color: #c0392b;
+        }
+        
+        .error p {
+            margin: 5px 0;
+            font-size: 0.9rem;
+        }
+        
         .success-indicator {
             background: #d4edda;
             color: #155724;
@@ -528,7 +538,7 @@
                     
                     <button type="button" class="search-btn tripadvisor-btn" id="searchTripAdvisor">
                         <span class="btn-title">⭐ Search TripAdvisor</span>
-                        <span class="btn-subtitle">Reviews & ratings focused</span>
+                        <span class="btn-subtitle">Coming soon - Reviews & ratings</span>
                     </button>
                 </div>
             </div>
@@ -623,7 +633,7 @@
                 const response = await fetch(`${BACKEND_URL}/api/cities`);
                 if (response.ok) {
                     const data = await response.json();
-                    document.getElementById('connectionStatus').innerHTML = `✅ Connected to STAYFINDR backend - ${data.total} cities available with dual-source search!`;
+                    document.getElementById('connectionStatus').innerHTML = `✅ Connected to STAYFINDR backend - ${data.total} cities available! Booking.com ready, TripAdvisor coming soon.`;
                     document.getElementById('connectionStatus').className = 'status success-indicator';
                 } else {
                     throw new Error('Backend not responding');
@@ -697,6 +707,7 @@
             document.getElementById('checkout').value = tomorrow.toISOString().split('T')[0];
         }
 
+        // FIXED searchHotels function - works with current backend
         async function searchHotels(source) {
             const city = document.getElementById('city').value;
             const roomType = document.getElementById('roomType').value;
@@ -719,7 +730,7 @@
             } else {
                 tripAdvisorBtn.disabled = true;
                 tripAdvisorBtn.classList.add('loading');
-                tripAdvisorBtn.innerHTML = '<span class="btn-title">🔄 Searching...</span><span class="btn-subtitle">Fetching TripAdvisor data</span>';
+                tripAdvisorBtn.innerHTML = '<span class="btn-title">🔄 Processing...</span><span class="btn-subtitle">TripAdvisor coming soon...</span>';
             }
 
             // Update UI
@@ -730,11 +741,28 @@
             hotelsTitle.innerHTML = `Hotels in ${city} <span class="source-badge ${badgeClass}">${sourceLabel}</span>`;
 
             try {
-                // Use different endpoints for different sources
-                const endpoint = source === 'booking' ? 
-                    `/api/hotels/booking` : 
-                    `/api/hotels/tripadvisor`;
+                // Handle TripAdvisor - Coming Soon message
+                if (source === 'tripadvisor') {
+                    hotelsList.innerHTML = `
+                        <div class="error">
+                            <h4>🚧 TripAdvisor Integration Coming Soon!</h4>
+                            <p>We're working on TripAdvisor integration with reviews and ratings focus.</p>
+                            <p>For now, please use the <strong>Booking.com</strong> search for real-time hotel prices.</p>
+                            <p><small>TripAdvisor will be available after backend v4.0 deployment.</small></p>
+                        </div>
+                    `;
                     
+                    document.getElementById('connectionStatus').innerHTML = 
+                        `🚧 TripAdvisor integration coming soon - Use Booking.com for now`;
+                    document.getElementById('connectionStatus').className = 'status';
+                    
+                    resetSearchButtons();
+                    return;
+                }
+                
+                // For Booking.com: Use existing backend endpoint
+                const endpoint = `/api/hotels`; // Use current backend endpoint
+                
                 const response = await fetch(`${BACKEND_URL}${endpoint}?city=${city}&checkin=${checkin}&checkout=${checkout}&adults=${guests}&rooms=1&room_type=${roomType}`);
                 
                 if (!response.ok) {
@@ -773,9 +801,18 @@
 
             } catch (error) {
                 console.error(`${sourceLabel} search error:`, error);
-                hotelsList.innerHTML = `<div class="error">Error searching ${sourceLabel}: ${error.message}</div>`;
+                hotelsList.innerHTML = `
+                    <div class="error">
+                        <h4>Error searching ${sourceLabel}</h4>
+                        <p>${error.message}</p>
+                        ${source === 'booking' ? 
+                            '<p>Please check your backend connection and try again in a moment.</p>' : 
+                            '<p>TripAdvisor integration requires backend v4.0 deployment.</p>'
+                        }
+                    </div>
+                `;
                 
-                document.getElementById('connectionStatus').innerHTML = `❌ ${sourceLabel} search failed - Try the other source`;
+                document.getElementById('connectionStatus').innerHTML = `❌ ${sourceLabel} search failed - ${source === 'booking' ? 'Check backend connection' : 'Coming soon'}`;
                 document.getElementById('connectionStatus').className = 'status error';
             }
 
@@ -795,7 +832,7 @@
             // Reset TripAdvisor button
             tripAdvisorBtn.disabled = false;
             tripAdvisorBtn.classList.remove('loading');
-            tripAdvisorBtn.innerHTML = '<span class="btn-title">⭐ Search TripAdvisor</span><span class="btn-subtitle">Reviews & ratings focused</span>';
+            tripAdvisorBtn.innerHTML = '<span class="btn-title">⭐ Search TripAdvisor</span><span class="btn-subtitle">Coming soon - Reviews & ratings</span>';
         }
 
         function showMoreHotels() {
