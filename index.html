@@ -71,13 +71,46 @@
             font-size: 16px;
         }
         
+        /* Container for source selector + search button */
+        .source-and-search-container {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
         /* Source selector styling */
         .source-selector {
             display: flex;
             gap: 12px;
             align-items: center;
             flex-wrap: nowrap;
-            justify-content: center; /* Centrera knapparna */
+        }
+        
+        /* Search button aligned with source buttons */
+        .search-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 140px;
+            height: 44px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .search-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .search-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
         }
         .source-option {
             display: flex;
@@ -292,11 +325,39 @@
             color: #27ae60;
             line-height: 1.2;
         }
-        .price-breakdown {
-            font-size: 0.85rem;
-            color: #7f8c8d;
-            margin-top: 4px;
-            font-style: italic;
+        
+        /* Mobile responsiveness for new layout */
+        @media (max-width: 768px) {
+            .source-and-search-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .source-selector {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .source-option {
+                width: 120px;
+                margin-bottom: 8px;
+            }
+            .search-btn {
+                width: 200px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .source-selector {
+                flex-direction: column;
+                width: 100%;
+            }
+            .source-option {
+                width: 100%;
+                max-width: 200px;
+            }
+            .search-btn {
+                width: 100%;
+                max-width: 200px;
+            }
         }
         .rating {
             color: #f39c12;
@@ -388,22 +449,27 @@
 
         <div class="search-container">
             <form id="searchForm">
-                <!-- Hotel Source Selection - Own Row -->
+                <!-- Hotel Source Selection + Search Button Row -->
                 <div class="source-selection-row">
                     <label class="source-main-label">Hotel Source</label>
-                    <div class="source-selector">
-                        <div class="source-option booking">
-                            <input type="radio" name="source" value="booking" id="sourceBooking" checked>
-                            <label for="sourceBooking">Booking.com</label>
+                    <div class="source-and-search-container">
+                        <div class="source-selector">
+                            <div class="source-option booking">
+                                <input type="radio" name="source" value="booking" id="sourceBooking" checked>
+                                <label for="sourceBooking">Booking.com</label>
+                            </div>
+                            <div class="source-option tripadvisor">
+                                <input type="radio" name="source" value="tripadvisor" id="sourceTripadvisor">
+                                <label for="sourceTripadvisor">TripAdvisor.com</label>
+                            </div>
+                            <div class="source-option compare">
+                                <input type="radio" name="source" value="compare" id="sourceCompare">
+                                <label for="sourceCompare">Compare Prices</label>
+                            </div>
                         </div>
-                        <div class="source-option tripadvisor">
-                            <input type="radio" name="source" value="tripadvisor" id="sourceTripadvisor">
-                            <label for="sourceTripadvisor">TripAdvisor.com</label>
-                        </div>
-                        <div class="source-option compare">
-                            <input type="radio" name="source" value="compare" id="sourceCompare">
-                            <label for="sourceCompare">Compare Prices</label>
-                        </div>
+                        <button type="submit" class="search-btn" id="searchButton">
+                            🔍 Search Hotels
+                        </button>
                     </div>
                 </div>
                 
@@ -469,11 +535,6 @@
                             <option value="3">3 Guests</option>
                             <option value="4">4 Guests</option>
                         </select>
-                    </div>
-                    <div class="form-group">
-                        <button type="submit" class="search-btn" id="searchButton">
-                            🔍 Search Hotels
-                        </button>
                     </div>
                 </div>
             </form>
@@ -842,25 +903,17 @@
                 const nights = Math.max(1, Math.ceil((checkoutDate - checkinDate) / (1000 * 60 * 60 * 24)));
 
                 hotels.forEach((hotel, index) => {
-                    // Color code markers by source in compare mode
-                    let markerColor = '#3498db'; // Default blue
-                    if (hotel.source === 'booking.com') {
-                        markerColor = '#0066cc'; // Booking blue
-                    } else if (hotel.source === 'demo_tripadvisor') {
-                        markerColor = '#00af87'; // TripAdvisor green
-                    }
-
-                    // Calculate harmonized price for popup
+                    // Calculate harmonized price for popup - ALWAYS EUR
                     let totalPrice = 'Price on request';
                     if (hotel.price !== 'N/A' && hotel.price && hotel.price > 0) {
-                        let pricePerNight = 0;
+                        let priceInEUR = 0;
                         if (hotel.source === 'booking.com') {
                             // Convert SEK to EUR
-                            pricePerNight = Math.round(hotel.price / 11.5);
+                            priceInEUR = Math.round(hotel.price / 11.5);
                         } else {
-                            pricePerNight = hotel.price;
+                            priceInEUR = hotel.price;
                         }
-                        const totalStayPrice = pricePerNight * nights;
+                        const totalStayPrice = priceInEUR * nights;
                         totalPrice = `€${totalStayPrice} total (${nights} night${nights > 1 ? 's' : ''})`;
                     }
 
