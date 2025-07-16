@@ -61,38 +61,59 @@
         /* Source selector styling */
         .source-selector {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
+            flex-wrap: wrap;
         }
         .source-option {
             display: flex;
             align-items: center;
             gap: 5px;
-            padding: 8px 12px;
+            padding: 10px 15px;
             border: 2px solid #ecf0f1;
-            border-radius: 8px;
+            border-radius: 25px;
             cursor: pointer;
             transition: all 0.3s;
             background: white;
+            font-size: 0.9rem;
+            font-weight: 600;
+            min-width: 110px;
+            justify-content: center;
+            text-align: center;
         }
         .source-option input[type="radio"] {
             margin: 0;
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
         }
         .source-option.booking {
             border-color: #0066cc;
+            color: #0066cc;
+        }
+        .source-option.booking:has(input:checked) {
+            background: #0066cc;
+            color: white;
         }
         .source-option.tripadvisor {
             border-color: #00af87;
+            color: #00af87;
+        }
+        .source-option.tripadvisor:has(input:checked) {
+            background: #00af87;
+            color: white;
         }
         .source-option.compare {
             border-color: #ff6b6b;
             background: linear-gradient(45deg, #ff6b6b, #ff9ff3);
             color: white;
+            font-weight: 700;
+        }
+        .source-option.compare:has(input:checked) {
+            background: linear-gradient(45deg, #e55555, #e088e0);
+            transform: scale(1.02);
         }
         .source-option:hover {
-            transform: translateY(-2px);
+            transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         
@@ -346,15 +367,15 @@
                     <div class="source-selector">
                         <div class="source-option booking">
                             <input type="radio" name="source" value="booking" id="sourceBooking" checked>
-                            <label for="sourceBooking">Booking.com</label>
+                            <label for="sourceBooking">🔵 Booking.com</label>
                         </div>
                         <div class="source-option tripadvisor">
                             <input type="radio" name="source" value="tripadvisor" id="sourceTripadvisor">
-                            <label for="sourceTripadvisor">TripAdvisor</label>
+                            <label for="sourceTripadvisor">🔴 TripAdvisor</label>
                         </div>
                         <div class="source-option compare">
                             <input type="radio" name="source" value="compare" id="sourceCompare">
-                            <label for="sourceCompare">Compare Both</label>
+                            <label for="sourceCompare">⚡ Compare</label>
                         </div>
                     </div>
                 </div>
