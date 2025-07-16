@@ -46,8 +46,8 @@
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 15px;
             align-items: end;
-            /* REVISION: Extra marginal för att skapa luft till knapparna under */
-            margin-bottom: 25px;
+            /* REVISION: Ökad marginal för att skapa mer luft till knapparna under */
+            margin-bottom: 35px;
         }
         .form-group {
             display: flex;
@@ -223,9 +223,8 @@
             .search-container { padding: 15px; }
             .search-form { grid-template-columns: 1fr; }
             
-            /* Flyttar ner knappraden och ger den utrymme */
             .source-selection-row {
-                margin-top: 0; /* Tas bort härifrån */
+                margin-top: 0;
                 margin-bottom: 0;
             }
             .source-and-search-container {
@@ -349,7 +348,6 @@
         async function initializeApp() {
             const statusDiv = document.getElementById('connectionStatus');
             try {
-                // REVISION: Inform the user that the server might be starting up.
                 statusDiv.innerHTML = '🔗 Väcker servern, detta kan ta en minut...';
                 statusDiv.className = 'status';
 
@@ -366,7 +364,7 @@
 
 
         function initMap() {
-            map = L.map('map').setView([51.505, -0.09], 5); // General view of Europe
+            map = L.map('map').setView([51.505, -0.09], 5);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap contributors'
             }).addTo(map);
@@ -441,8 +439,12 @@
             const hotelsTitle = document.getElementById('hotelsTitle');
             const citySelect = document.getElementById('city');
 
+            // REVISION: More robust way to get the selected city value.
+            const selectedCityOption = citySelect.options[citySelect.selectedIndex];
+            const cityValue = selectedCityOption.value;
+
             const params = {
-                city: citySelect.value,
+                city: cityValue,
                 room_type: document.getElementById('roomType').value,
                 checkin: document.getElementById('checkin').value,
                 checkout: document.getElementById('checkout').value,
@@ -452,7 +454,7 @@
 
             searchButton.disabled = true;
             searchButton.innerHTML = '⏳ Söker...';
-            hotelsTitle.textContent = `Hämtar hotell i ${citySelect.options[citySelect.selectedIndex].text}...`;
+            hotelsTitle.textContent = `Hämtar hotell i ${selectedCityOption.text}...`;
             hotelsListDiv.innerHTML = '<div class="loading">Letar efter de bästa erbjudandena...</div>';
             clearMap();
 
