@@ -58,12 +58,25 @@
             border-color: #3498db;
         }
         
+        /* Source selection row - separate from form grid */
+        .source-selection-row {
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .source-main-label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+        
         /* Source selector styling */
         .source-selector {
             display: flex;
             gap: 12px;
             align-items: center;
-            flex-wrap: nowrap; /* Horisontellt på desktop */
+            flex-wrap: nowrap;
             justify-content: center; /* Centrera knapparna */
         }
         .source-option {
@@ -367,6 +380,26 @@
         </div>
 
         <div class="search-container">
+            <!-- Hotel Source Selection - Own Row -->
+            <div class="source-selection-row">
+                <label class="source-main-label">Hotel Source</label>
+                <div class="source-selector">
+                    <div class="source-option booking">
+                        <input type="radio" name="source" value="booking" id="sourceBooking" checked>
+                        <label for="sourceBooking">Booking.com</label>
+                    </div>
+                    <div class="source-option tripadvisor">
+                        <input type="radio" name="source" value="tripadvisor" id="sourceTripadvisor">
+                        <label for="sourceTripadvisor">TripAdvisor.com</label>
+                    </div>
+                    <div class="source-option compare">
+                        <input type="radio" name="source" value="compare" id="sourceCompare">
+                        <label for="sourceCompare">Compare Prices</label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Search Form Fields -->
             <form id="searchForm" class="search-form">
                 <div class="form-group">
                     <label for="city">City</label>
@@ -428,23 +461,6 @@
                         <option value="3">3 Guests</option>
                         <option value="4">4 Guests</option>
                     </select>
-                </div>
-                <div class="form-group">
-                    <label>Hotel Source</label>
-                    <div class="source-selector">
-                        <div class="source-option booking">
-                            <input type="radio" name="source" value="booking" id="sourceBooking" checked>
-                            <label for="sourceBooking">Booking.com</label>
-                        </div>
-                        <div class="source-option tripadvisor">
-                            <input type="radio" name="source" value="tripadvisor" id="sourceTripadvisor">
-                            <label for="sourceTripadvisor">TripAdvisor.com</label>
-                        </div>
-                        <div class="source-option compare">
-                            <input type="radio" name="source" value="compare" id="sourceCompare">
-                            <label for="sourceCompare">Compare Prices</label>
-                        </div>
-                    </div>
                 </div>
                 <div class="form-group">
                     <button type="submit" class="search-btn" id="searchButton">
