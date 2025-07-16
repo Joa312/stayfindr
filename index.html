@@ -63,7 +63,7 @@
             display: flex;
             gap: 12px;
             align-items: center;
-            flex-wrap: wrap;
+            flex-wrap: nowrap; /* Horisontellt på desktop */
             justify-content: flex-start;
         }
         .source-option {
@@ -84,6 +84,7 @@
             text-align: center;
             color: #374151;
             position: relative;
+            flex-shrink: 0; /* Förhindra krympning */
         }
         .source-option input[type="radio"] {
             position: absolute;
@@ -158,6 +159,29 @@
         .source-option:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        /* Mobile responsiveness - stack vertically only on small screens */
+        @media (max-width: 768px) {
+            .source-selector {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .source-option {
+                width: 120px; /* Slightly smaller on mobile */
+                margin-bottom: 8px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .source-selector {
+                flex-direction: column;
+                width: 100%;
+            }
+            .source-option {
+                width: 100%;
+                max-width: 200px;
+            }
         }
         
         .search-btn {
