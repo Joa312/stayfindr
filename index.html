@@ -64,7 +64,7 @@
             border-color: #3498db;
         }
 
-        /* === KNAPPAR === */
+        /* === KNAPPAR (Desktop) === */
         .source-selection-row {
             margin-bottom: 25px;
             text-align: center;
@@ -80,7 +80,7 @@
             display: flex;
             gap: 12px;
             align-items: center;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             justify-content: center;
         }
         .harmonized-btn {
@@ -199,7 +199,7 @@
         .error { color: #e74c3c; background: #fdf2f2; }
         .success-indicator { background: #d4edda; color: #155724; }
         
-        /* === RESPONSIVITET === */
+        /* === RESPONSIVITET (Desktop first) === */
         @media (max-width: 900px) {
             .main-content { 
                 grid-template-columns: 1fr; 
@@ -208,12 +208,55 @@
             #map { height: 400px; margin-bottom: 30px; }
             .hotels-panel { height: 500px; }
         }
-        @media (max-width: 480px) {
+        
+        /* REVISION: Den nya, förbättrade mobil-layouten */
+        @media (max-width: 768px) {
             body { padding: 10px; }
             .header h1 { font-size: 2.2rem; }
             .header p { font-size: 1.2rem; }
             .search-container { padding: 15px; }
             .search-form { grid-template-columns: 1fr; }
+            
+            /* Flyttar ner knappraden och ger den utrymme */
+            .source-selection-row {
+                margin-top: 25px; 
+                margin-bottom: 0;
+            }
+
+            /* Staplar käll-väljare och sök-knapp vertikalt */
+            .source-and-search-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            /* Raden med de tre käll-knapparna */
+            .source-selector {
+                display: flex;
+                width: 100%;
+                gap: 10px;
+            }
+            
+            /* Alla käll-knappar får samma storlek och blir "platta" */
+            .harmonized-btn.source-option {
+                flex: 1; /* Gör att alla tre tar upp lika mycket plats */
+                min-width: 0; /* Viktigt för att flexbox ska fungera korrekt */
+                padding: 12px 5px;
+                font-size: 13px;
+                box-shadow: none; /* Tar bort skugga för "platt" design */
+            }
+            
+            /* Sök-knappen får full bredd */
+            .harmonized-btn.search-btn {
+                width: 100%;
+                font-size: 16px;
+                padding: 14px;
+            }
+
+            /* Ta bort hover-effekt på mobil för en plattare känsla */
+            .harmonized-btn:hover {
+                transform: none;
+                box-shadow: none;
+            }
         }
     </style>
 </head>
@@ -230,27 +273,6 @@
 
         <div class="search-container">
             <form id="searchForm" onsubmit="searchHotels(event)">
-                <div class="source-selection-row">
-                    <div class="source-and-search-container">
-                        <div class="source-selector">
-                            <div class="harmonized-btn source-option booking">
-                                <input type="radio" name="source" value="booking" id="sourceBooking" checked>
-                                <label for="sourceBooking">Booking.com</label>
-                            </div>
-                            <div class="harmonized-btn source-option tripadvisor">
-                                <input type="radio" name="source" value="tripadvisor" id="sourceTripadvisor">
-                                <label for="sourceTripadvisor">TripAdvisor</label>
-                            </div>
-                            <div class="harmonized-btn source-option compare">
-                                <input type="radio" name="source" value="compare" id="sourceCompare">
-                                <label for="sourceCompare">Compare Prices</label>
-                            </div>
-                        </div>
-                        <button type="submit" class="harmonized-btn search-btn" id="searchButton">
-                            🔍 Search Hotels
-                        </button>
-                    </div>
-                </div>
                 
                 <div class="search-form">
                     <div class="form-group">
@@ -267,264 +289,3 @@
                         <label for="checkin">Check-in</label>
                         <input type="date" id="checkin" required>
                     </div>
-                    <div class="form-group">
-                        <label for="checkout">Check-out</label>
-                        <input type="date" id="checkout" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="adults">Guests</label>
-                        <select id="adults">
-                            <option value="1">1 Guest</option>
-                            <option value="2" selected>2 Guests</option>
-                            <option value="3">3 Guests</option>
-                            <option value="4">4 Guests</option>
-                        </select>
-                    </div>
-                </div>
-            </form>
-        </div>
-
-        <div class="main-content">
-            <div id="map"></div>
-            <div class="hotels-panel">
-                <h3 id="hotelsTitle">Välj en stad och sök för att se hotell</h3>
-                <div id="hotelsList"></div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-        // === KONFIGURATION ===
-        const BACKEND_URL = 'https://actionly.onrender.com';
-        let map;
-        let currentMarkers = [];
-
-        // === INITIALISERING ===
-        document.addEventListener('DOMContentLoaded', initializeApp);
-
-        async function initializeApp() {
-            try {
-                initMap();
-                setDefaultDates();
-                await populateSelectFields();
-                testBackendConnection();
-            } catch (error) {
-                console.error("Initialization failed:", error);
-                document.getElementById('connectionStatus').innerHTML = '❌ Kunde inte ladda initial data.';
-                document.getElementById('connectionStatus').className = 'status error';
-            }
-        }
-
-        function initMap() {
-            map = L.map('map').setView([51.505, -0.09], 5); // General view of Europe
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
-        }
-
-        function setDefaultDates() {
-            const checkinInput = document.getElementById('checkin');
-            const checkoutInput = document.getElementById('checkout');
-            const today = new Date();
-            const tomorrow = new Date(today);
-            tomorrow.setDate(today.getDate() + 1);
-            const dayAfterTomorrow = new Date(today);
-            dayAfterTomorrow.setDate(today.getDate() + 2);
-
-            checkinInput.value = tomorrow.toISOString().split('T')[0];
-            checkoutInput.value = dayAfterTomorrow.toISOString().split('T')[0];
-        }
-
-        async function populateSelectFields() {
-            // Hämta städer och rumstyper parallellt
-            const [citiesRes, roomTypesRes] = await Promise.all([
-                fetch(`${BACKEND_URL}/api/cities`),
-                fetch(`${BACKEND_URL}/api/room-types`)
-            ]);
-
-            if (!citiesRes.ok || !roomTypesRes.ok) {
-                throw new Error("Failed to fetch cities or room types");
-            }
-
-            const citiesData = await citiesRes.json();
-            const roomTypesData = await roomTypesRes.json();
-
-            // Fyll i städer
-            const citySelect = document.getElementById('city');
-            citySelect.innerHTML = ''; // Rensa
-            for (const key in citiesData.cities) {
-                const city = citiesData.cities[key];
-                const option = new Option(`${city.name}`, key);
-                citySelect.add(option);
-            }
-
-            // Fyll i rumstyper
-            const roomTypeSelect = document.getElementById('roomType');
-            roomTypeSelect.innerHTML = ''; // Rensa
-            for (const key in roomTypesData.room_types) {
-                const roomType = roomTypesData.room_types[key];
-                const option = new Option(`${roomType.name} (${roomType.guests} guests)`, key);
-                roomTypeSelect.add(option);
-            }
-        }
-
-        async function testBackendConnection() {
-            const statusDiv = document.getElementById('connectionStatus');
-            try {
-                const response = await fetch(`${BACKEND_URL}/test`);
-                if (!response.ok) throw new Error("Backend connection test failed");
-                const data = await response.json();
-                statusDiv.innerHTML = `✅ Ansluten till STAYFINDR Backend (${data.status})`;
-                statusDiv.className = 'status success-indicator';
-            } catch (error) {
-                console.error("Backend connection error:", error);
-                statusDiv.innerHTML = '❌ Backend svarar inte. Vissa funktioner kan misslyckas.';
-                statusDiv.className = 'status error';
-            }
-        }
-        
-        // === SÖKLOGIK ===
-        async function searchHotels(event) {
-            event.preventDefault();
-            const searchButton = document.getElementById('searchButton');
-            const hotelsListDiv = document.getElementById('hotelsList');
-            const hotelsTitle = document.getElementById('hotelsTitle');
-            const citySelect = document.getElementById('city');
-
-            // Hämta värden från formuläret
-            const params = {
-                city: citySelect.value,
-                room_type: document.getElementById('roomType').value,
-                checkin: document.getElementById('checkin').value,
-                checkout: document.getElementById('checkout').value,
-                adults: document.getElementById('adults').value
-            };
-            const source = document.querySelector('input[name="source"]:checked').value;
-
-            // UI-uppdatering vid sökstart
-            searchButton.disabled = true;
-            searchButton.innerHTML = '⏳ Söker...';
-            hotelsTitle.textContent = `Hämtar hotell i ${citySelect.options[citySelect.selectedIndex].text}...`;
-            hotelsListDiv.innerHTML = '<div class="loading">Letar efter de bästa erbjudandena...</div>';
-            clearMap();
-
-            try {
-                const hotels = await fetchHotels(source, params);
-                renderHotels(hotels, params);
-                updateMap(hotels);
-            } catch (error) {
-                console.error("Search failed:", error);
-                hotelsListDiv.innerHTML = `<div class="error">Sökningen misslyckades: ${error.message}</div>`;
-                hotelsTitle.textContent = "Något gick fel";
-            } finally {
-                searchButton.disabled = false;
-                searchButton.innerHTML = '🔍 Search Hotels';
-            }
-        }
-
-        async function fetchHotels(source, params) {
-            if (source === 'compare') {
-                const [bookingHotels, tripadvisorHotels] = await Promise.all([
-                    fetchFromSource('booking', params).catch(e => { console.error("Booking fetch failed:", e); return []; }),
-                    fetchFromSource('tripadvisor', params).catch(e => { console.error("TripAdvisor fetch failed:", e); return []; })
-                ]);
-                // Enkel sammanslagning och sortering efter pris
-                const allHotels = [...bookingHotels, ...tripadvisorHotels];
-                return allHotels.sort((a, b) => (a.price || 9999) - (b.price || 9999));
-            } else {
-                return await fetchFromSource(source, params);
-            }
-        }
-
-        async function fetchFromSource(source, params) {
-            const query = new URLSearchParams(params).toString();
-            const url = `${BACKEND_URL}/api/hotels/${source}?${query}`;
-            const response = await fetch(url);
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(`API error from ${source}: ${errorData.error || response.statusText}`);
-            }
-            const data = await response.json();
-            return data.hotels || [];
-        }
-
-        // === RENDERINGSFUNKTIONER ===
-        function renderHotels(hotels, params) {
-            const hotelsListDiv = document.getElementById('hotelsList');
-            const hotelsTitle = document.getElementById('hotelsTitle');
-            
-            if (!hotels || hotels.length === 0) {
-                hotelsListDiv.innerHTML = '<div class="error">Inga hotell hittades för dina val.</div>';
-                hotelsTitle.textContent = "Inga resultat";
-                return;
-            }
-
-            hotelsTitle.textContent = `Hittade ${hotels.length} hotell`;
-            const nights = Math.ceil((new Date(params.checkout) - new Date(params.checkin)) / (1000 * 60 * 60 * 24)) || 1;
-
-            hotelsListDiv.innerHTML = hotels.map((hotel, index) => {
-                const priceText = hotel.price !== 'N/A' ? `€${hotel.price} <span style="font-size:0.8em; color:#777;">/ natt</span>` : 'Pris ej tillgängligt';
-                const ratingStars = '⭐'.repeat(Math.round(hotel.rating));
-                return `
-                    <div class="hotel-card" data-hotel-index="${index}" onmouseover="highlightMarker(${index})" onmouseout="unhighlightMarker(${index})">
-                        <div class="hotel-name">${hotel.name}</div>
-                        <div class="hotel-details">${hotel.address}</div>
-                        <div class="price-info">
-                            <span class="price">${priceText}</span>
-                            <span class="rating">${ratingStars} (${hotel.rating})</span>
-                        </div>
-                        <a href="${hotel.booking_url}" target="_blank" class="book-btn">Se erbjudande på ${hotel.source}</a>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // === KARTFUNKTIONER ===
-        function updateMap(hotels) {
-            clearMap();
-            if (!hotels || hotels.length === 0) return;
-
-            const hotelCoordinates = hotels.map(h => h.coordinates).filter(c => c && c.length === 2);
-            if(hotelCoordinates.length === 0) return;
-
-            const bounds = L.latLngBounds(hotelCoordinates);
-            map.fitBounds(bounds, { padding: [50, 50] });
-
-            hotels.forEach((hotel, index) => {
-                const marker = L.marker(hotel.coordinates)
-                    .addTo(map)
-                    .bindPopup(`<b>${hotel.name}</b><br>€${hotel.price}/natt`);
-                
-                marker.on('click', () => {
-                    const card = document.querySelector(`.hotel-card[data-hotel-index="${index}"]`);
-                    if (card) {
-                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        card.classList.add('highlighted');
-                        setTimeout(() => card.classList.remove('highlighted'), 2000);
-                    }
-                });
-                currentMarkers.push(marker);
-            });
-        }
-
-        function highlightMarker(index) {
-            if (currentMarkers[index]) {
-                currentMarkers[index].openPopup();
-            }
-        }
-        
-        function unhighlightMarker(index) {
-             if (currentMarkers[index]) {
-                currentMarkers[index].closePopup();
-            }
-        }
-
-        function clearMap() {
-            currentMarkers.forEach(marker => map.removeLayer(marker));
-            currentMarkers = [];
-        }
-
-    </script>
-</body>
-</html>
