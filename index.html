@@ -287,9 +287,16 @@
             margin-bottom: 10px;
         }
         .price {
-            font-size: 1.3rem;
-            font-weight: 600;
+            font-size: 1.2rem;
+            font-weight: 700;
             color: #27ae60;
+            line-height: 1.2;
+        }
+        .price-breakdown {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            margin-top: 4px;
+            font-style: italic;
         }
         .rating {
             color: #f39c12;
@@ -380,92 +387,94 @@
         </div>
 
         <div class="search-container">
-            <!-- Hotel Source Selection - Own Row -->
-            <div class="source-selection-row">
-                <label class="source-main-label">Hotel Source</label>
-                <div class="source-selector">
-                    <div class="source-option booking">
-                        <input type="radio" name="source" value="booking" id="sourceBooking" checked>
-                        <label for="sourceBooking">Booking.com</label>
+            <form id="searchForm">
+                <!-- Hotel Source Selection - Own Row -->
+                <div class="source-selection-row">
+                    <label class="source-main-label">Hotel Source</label>
+                    <div class="source-selector">
+                        <div class="source-option booking">
+                            <input type="radio" name="source" value="booking" id="sourceBooking" checked>
+                            <label for="sourceBooking">Booking.com</label>
+                        </div>
+                        <div class="source-option tripadvisor">
+                            <input type="radio" name="source" value="tripadvisor" id="sourceTripadvisor">
+                            <label for="sourceTripadvisor">TripAdvisor.com</label>
+                        </div>
+                        <div class="source-option compare">
+                            <input type="radio" name="source" value="compare" id="sourceCompare">
+                            <label for="sourceCompare">Compare Prices</label>
+                        </div>
                     </div>
-                    <div class="source-option tripadvisor">
-                        <input type="radio" name="source" value="tripadvisor" id="sourceTripadvisor">
-                        <label for="sourceTripadvisor">TripAdvisor.com</label>
+                </div>
+                
+                <!-- Search Form Fields -->
+                <div class="search-form">
+                    <div class="form-group">
+                        <label for="city">City</label>
+                        <select id="city">
+                            <option value="stockholm">Stockholm, Sweden</option>
+                            <option value="paris">Paris, France</option>
+                            <option value="london">London, UK</option>
+                            <option value="amsterdam">Amsterdam, Netherlands</option>
+                            <option value="barcelona">Barcelona, Spain</option>
+                            <option value="rome">Rome, Italy</option>
+                            <option value="berlin">Berlin, Germany</option>
+                            <option value="copenhagen">Copenhagen, Denmark</option>
+                            <option value="vienna">Vienna, Austria</option>
+                            <option value="prague">Prague, Czech Republic</option>
+                            <option value="madrid">Madrid, Spain</option>
+                            <option value="milano">Milano, Italy</option>
+                            <option value="zurich">Zürich, Switzerland</option>
+                            <option value="oslo">Oslo, Norway</option>
+                            <option value="helsinki">Helsinki, Finland</option>
+                            <option value="warsaw">Warsaw, Poland</option>
+                            <option value="budapest">Budapest, Hungary</option>
+                            <option value="dublin">Dublin, Ireland</option>
+                            <option value="lisbon">Lisbon, Portugal</option>
+                            <option value="brussels">Brussels, Belgium</option>
+                            <option value="athens">Athens, Greece</option>
+                            <option value="munich">Munich, Germany</option>
+                            <option value="lyon">Lyon, France</option>
+                            <option value="florence">Florence, Italy</option>
+                            <option value="edinburgh">Edinburgh, Scotland</option>
+                            <option value="nice">Nice, France</option>
+                            <option value="palma">Palma, Spain</option>
+                            <option value="santorini">Santorini, Greece</option>
+                            <option value="ibiza">Ibiza, Spain</option>
+                        </select>
                     </div>
-                    <div class="source-option compare">
-                        <input type="radio" name="source" value="compare" id="sourceCompare">
-                        <label for="sourceCompare">Compare Prices</label>
+                    <div class="form-group">
+                        <label for="roomType">Room Type</label>
+                        <select id="roomType">
+                            <option value="single">Single Room (1 guest)</option>
+                            <option value="double" selected>Double Room (2 guests)</option>
+                            <option value="family">Family Room (3-4 guests)</option>
+                            <option value="junior_suite">Junior Suite (2 guests)</option>
+                            <option value="suite">Suite/Apartment (2-4 guests)</option>
+                        </select>
                     </div>
-                </div>
-            </div>
-            
-            <!-- Search Form Fields -->
-            <form id="searchForm" class="search-form">
-                <div class="form-group">
-                    <label for="city">City</label>
-                    <select id="city">
-                        <option value="stockholm">Stockholm, Sweden</option>
-                        <option value="paris">Paris, France</option>
-                        <option value="london">London, UK</option>
-                        <option value="amsterdam">Amsterdam, Netherlands</option>
-                        <option value="barcelona">Barcelona, Spain</option>
-                        <option value="rome">Rome, Italy</option>
-                        <option value="berlin">Berlin, Germany</option>
-                        <option value="copenhagen">Copenhagen, Denmark</option>
-                        <option value="vienna">Vienna, Austria</option>
-                        <option value="prague">Prague, Czech Republic</option>
-                        <option value="madrid">Madrid, Spain</option>
-                        <option value="milano">Milano, Italy</option>
-                        <option value="zurich">Zürich, Switzerland</option>
-                        <option value="oslo">Oslo, Norway</option>
-                        <option value="helsinki">Helsinki, Finland</option>
-                        <option value="warsaw">Warsaw, Poland</option>
-                        <option value="budapest">Budapest, Hungary</option>
-                        <option value="dublin">Dublin, Ireland</option>
-                        <option value="lisbon">Lisbon, Portugal</option>
-                        <option value="brussels">Brussels, Belgium</option>
-                        <option value="athens">Athens, Greece</option>
-                        <option value="munich">Munich, Germany</option>
-                        <option value="lyon">Lyon, France</option>
-                        <option value="florence">Florence, Italy</option>
-                        <option value="edinburgh">Edinburgh, Scotland</option>
-                        <option value="nice">Nice, France</option>
-                        <option value="palma">Palma, Spain</option>
-                        <option value="santorini">Santorini, Greece</option>
-                        <option value="ibiza">Ibiza, Spain</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="roomType">Room Type</label>
-                    <select id="roomType">
-                        <option value="single">Single Room (1 guest)</option>
-                        <option value="double" selected>Double Room (2 guests)</option>
-                        <option value="family">Family Room (3-4 guests)</option>
-                        <option value="junior_suite">Junior Suite (2 guests)</option>
-                        <option value="suite">Suite/Apartment (2-4 guests)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="checkin">Check-in</label>
-                    <input type="date" id="checkin" required>
-                </div>
-                <div class="form-group">
-                    <label for="checkout">Check-out</label>
-                    <input type="date" id="checkout" required>
-                </div>
-                <div class="form-group">
-                    <label for="guests">Guests</label>
-                    <select id="guests">
-                        <option value="1">1 Guest</option>
-                        <option value="2" selected>2 Guests</option>
-                        <option value="3">3 Guests</option>
-                        <option value="4">4 Guests</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <button type="submit" class="search-btn" id="searchButton">
-                        🔍 Search Hotels
-                    </button>
+                    <div class="form-group">
+                        <label for="checkin">Check-in</label>
+                        <input type="date" id="checkin" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="checkout">Check-out</label>
+                        <input type="date" id="checkout" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="guests">Guests</label>
+                        <select id="guests">
+                            <option value="1">1 Guest</option>
+                            <option value="2" selected>2 Guests</option>
+                            <option value="3">3 Guests</option>
+                            <option value="4">4 Guests</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="search-btn" id="searchButton">
+                            🔍 Search Hotels
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -827,6 +836,11 @@
                 const center = hotels[0].coordinates;
                 map.setView(center, 12);
 
+                // Calculate nights for popup display
+                const checkinDate = new Date(document.getElementById('checkin').value);
+                const checkoutDate = new Date(document.getElementById('checkout').value);
+                const nights = Math.max(1, Math.ceil((checkoutDate - checkinDate) / (1000 * 60 * 60 * 24)));
+
                 hotels.forEach((hotel, index) => {
                     // Color code markers by source in compare mode
                     let markerColor = '#3498db'; // Default blue
@@ -836,13 +850,25 @@
                         markerColor = '#00af87'; // TripAdvisor green
                     }
 
+                    // Calculate harmonized price for popup
+                    let totalPrice = 'Price on request';
+                    if (hotel.price !== 'N/A' && hotel.price && hotel.price > 0) {
+                        let pricePerNight = 0;
+                        if (hotel.source === 'booking.com') {
+                            // Convert SEK to EUR
+                            pricePerNight = Math.round(hotel.price / 11.5);
+                        } else {
+                            pricePerNight = hotel.price;
+                        }
+                        const totalStayPrice = pricePerNight * nights;
+                        totalPrice = `€${totalStayPrice} total (${nights} night${nights > 1 ? 's' : ''})`;
+                    }
+
                     const marker = L.marker(hotel.coordinates)
                         .addTo(map)
                         .bindPopup(`
                             <b>${hotel.name}</b><br>
-                            ${hotel.price !== 'N/A' && hotel.price ? 
-                                (hotel.source === 'booking.com' ? `${hotel.price} SEK/night` : `${hotel.price} EUR/night`) : 
-                                'Price on request'}<br>
+                            ${totalPrice}<br>
                             ⭐ ${hotel.rating || 4.0}/5<br>
                             <small>Source: ${hotel.source === 'booking.com' ? 'Booking.com' : 'TripAdvisor'}</small>
                         `);
