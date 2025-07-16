@@ -24,7 +24,10 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        .header p { font-size: 1.2rem; opacity: 0.9; }
+        .header p { 
+            font-size: 1.6rem; /* Ökad från 1.2rem */
+            opacity: 0.9; 
+        }
         .status { text-align: center; color: white; margin-bottom: 20px; }
         .search-container { 
             background: rgba(255,255,255,0.95); 
@@ -63,18 +66,12 @@
             margin-bottom: 25px;
             text-align: center;
         }
-        .source-main-label {
-            display: block;
-            margin-bottom: 12px;
-            font-weight: 600;
-            color: #2c3e50;
-            font-size: 16px;
-        }
+        /* Removed source-main-label - no more "Hotel Source" heading */
         
         /* Container for source selector + search button */
         .source-and-search-container {
             display: flex;
-            gap: 20px;
+            gap: 15px;
             align-items: center;
             justify-content: center;
             flex-wrap: wrap;
@@ -83,25 +80,38 @@
         /* Source selector styling */
         .source-selector {
             display: flex;
-            gap: 12px;
+            gap: 15px;
             align-items: center;
             flex-wrap: nowrap;
         }
         
-        /* Search button aligned with source buttons */
+        /* ALL 4 BUTTONS SAME SIZE */
+        .source-option, .search-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 20px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            width: 140px;
+            height: 44px;
+            text-align: center;
+            color: #374151;
+            position: relative;
+            flex-shrink: 0;
+        }
+        
+        /* Search button specific styling */
         .search-btn {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 140px;
-            height: 44px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            border: 2px solid #667eea;
         }
         .search-btn:hover {
             transform: translateY(-1px);
@@ -451,7 +461,6 @@
             <form id="searchForm">
                 <!-- Hotel Source Selection + Search Button Row -->
                 <div class="source-selection-row">
-                    <label class="source-main-label">Hotel Source</label>
                     <div class="source-and-search-container">
                         <div class="source-selector">
                             <div class="source-option booking">
@@ -706,11 +715,12 @@
             
             if (source === 'compare') {
                 hotelsList.innerHTML = '<div class="loading">🔍 Comparing prices from Booking.com and TripAdvisor...</div>';
-                hotelsTitle.innerHTML = `Hotels in ${city} - Price Comparison`;
+                hotelsTitle.innerHTML = `Hotels in ${city.charAt(0).toUpperCase() + city.slice(1)} - Price Comparison`;
                 compareInfo.style.display = 'block';
             } else {
-                hotelsList.innerHTML = `<div class="loading">🔍 Searching ${source === 'booking' ? 'Booking.com' : 'TripAdvisor'} hotels...</div>`;
-                hotelsTitle.innerHTML = `Hotels in ${city} - ${source === 'booking' ? 'Booking.com' : 'TripAdvisor'}`;
+                const sourceText = source === 'booking' ? 'Booking.com' : 'TripAdvisor';
+                hotelsList.innerHTML = `<div class="loading">🔍 Searching ${sourceText} hotels...</div>`;
+                hotelsTitle.innerHTML = `Hotels in ${city.charAt(0).toUpperCase() + city.slice(1)} - ${sourceText}`;
                 compareInfo.style.display = 'none';
             }
 
@@ -748,7 +758,10 @@
                         allHotelsData = data.hotels;
                         currentlyShowing = Math.min(5, data.hotels.length);
                         
-                        displayHotels(data.hotels.slice(0, currentlyShowing), data.city, source);
+                        // Capitalize city name properly
+                        const cityDisplayName = data.city || city.charAt(0).toUpperCase() + city.slice(1);
+                        
+                        displayHotels(data.hotels.slice(0, currentlyShowing), cityDisplayName, source);
                         updateMap(data.hotels.slice(0, currentlyShowing));
                         
                         const loadMoreContainer = document.getElementById('loadMoreContainer');
