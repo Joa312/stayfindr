@@ -15,7 +15,11 @@
             margin: 0; padding: 20px; min-height: 100vh;
             box-sizing: border-box;
         }
-        .container { max-width: 1400px; margin: 0 auto; }
+        .container { 
+            max-width: 1400px; 
+            margin: 0 auto;
+            padding-bottom: 50px;
+        }
         .header { text-align: center; color: white; margin-bottom: 30px; }
         .header h1 { 
             font-size: 3rem; 
@@ -42,6 +46,8 @@
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 15px;
             align-items: end;
+            /* REVISION: Extra marginal för att skapa luft till knapparna under */
+            margin-bottom: 25px;
         }
         .form-group {
             display: flex;
@@ -66,7 +72,6 @@
 
         /* === KNAPPAR (Desktop) === */
         .source-selection-row {
-            margin-bottom: 25px;
             text-align: center;
         }
         .source-and-search-container {
@@ -141,6 +146,7 @@
         #map { 
             border-radius: 15px; 
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            background-color: #e9e9e9;
         }
         .hotels-panel { 
             background: rgba(255,255,255,0.95); 
@@ -209,7 +215,7 @@
             .hotels-panel { height: 500px; }
         }
         
-        /* REVISION: Den nya, förbättrade mobil-layouten */
+        /* FÖRBÄTTRAD MOBIL-LAYOUT */
         @media (max-width: 768px) {
             body { padding: 10px; }
             .header h1 { font-size: 2.2rem; }
@@ -219,40 +225,30 @@
             
             /* Flyttar ner knappraden och ger den utrymme */
             .source-selection-row {
-                margin-top: 25px; 
+                margin-top: 0; /* Tas bort härifrån */
                 margin-bottom: 0;
             }
-
-            /* Staplar käll-väljare och sök-knapp vertikalt */
             .source-and-search-container {
                 flex-direction: column;
                 gap: 15px;
             }
-
-            /* Raden med de tre käll-knapparna */
             .source-selector {
                 display: flex;
                 width: 100%;
                 gap: 10px;
             }
-            
-            /* Alla käll-knappar får samma storlek och blir "platta" */
             .harmonized-btn.source-option {
-                flex: 1; /* Gör att alla tre tar upp lika mycket plats */
-                min-width: 0; /* Viktigt för att flexbox ska fungera korrekt */
+                flex: 1;
+                min-width: 0;
                 padding: 12px 5px;
                 font-size: 13px;
-                box-shadow: none; /* Tar bort skugga för "platt" design */
+                box-shadow: none;
             }
-            
-            /* Sök-knappen får full bredd */
             .harmonized-btn.search-btn {
                 width: 100%;
                 font-size: 16px;
                 padding: 14px;
             }
-
-            /* Ta bort hover-effekt på mobil för en plattare känsla */
             .harmonized-btn:hover {
                 transform: none;
                 box-shadow: none;
@@ -277,15 +273,354 @@
                 <div class="search-form">
                     <div class="form-group">
                         <label for="city">City</label>
-                        <select id="city">
-                            </select>
+                        <select id="city"></select>
                     </div>
                     <div class="form-group">
                         <label for="roomType">Room Type</label>
-                        <select id="roomType">
-                             </select>
+                        <select id="roomType"></select>
                     </div>
                     <div class="form-group">
                         <label for="checkin">Check-in</label>
                         <input type="date" id="checkin" required>
                     </div>
+                    <div class="form-group">
+                        <label for="checkout">Check-out</label>
+                        <input type="date" id="checkout" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="adults">Guests</label>
+                        <select id="adults">
+                            <option value="1">1 Guest</option>
+                            <option value="2" selected>2 Guests</option>
+                            <option value="3">3 Guests</option>
+                            <option value="4">4 Guests</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="source-selection-row">
+                    <div class="source-and-search-container">
+                        <div class="source-selector">
+                            <div class="harmonized-btn source-option booking">
+                                <input type="radio" name="source" value="booking" id="sourceBooking" checked>
+                                <label for="sourceBooking">Booking.com</label>
+                            </div>
+                            <div class="harmonized-btn source-option tripadvisor">
+                                <input type="radio" name="source" value="tripadvisor" id="sourceTripadvisor">
+                                <label for="sourceTripadvisor">TripAdvisor</label>
+                            </div>
+                            <div class="harmonized-btn source-option compare">
+                                <input type="radio" name="source" value="compare" id="sourceCompare">
+                                <label for="sourceCompare">Compare Prices</label>
+                            </div>
+                        </div>
+                        <button type="submit" class="harmonized-btn search-btn" id="searchButton">
+                            🔍 Search Hotels
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="main-content">
+            <div id="map"></div>
+            <div class="hotels-panel">
+                <h3 id="hotelsTitle">Välj en stad och sök för att se hotell</h3>
+                <div id="hotelsList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // ====================================================================
+        // === KONFIGURATION & GLOBALA VARIABLER
+        // ====================================================================
+        const BACKEND_URL = 'https://actionly.onrender.com';
+        let map;
+        let currentMarkers = [];
+
+
+        // ====================================================================
+        // === INITIALISERING & STARTFUNKTIONER
+        // ====================================================================
+        document.addEventListener('DOMContentLoaded', initializeApp);
+
+        async function initializeApp() {
+            const statusDiv = document.getElementById('connectionStatus');
+            try {
+                // REVISION: Inform the user that the server might be starting up.
+                statusDiv.innerHTML = '🔗 Väcker servern, detta kan ta en minut...';
+                statusDiv.className = 'status';
+
+                initMap();
+                setDefaultDates();
+                await populateSelectFields();
+                await testBackendConnection();
+            } catch (error) {
+                console.error("Initialization failed:", error);
+                statusDiv.innerHTML = `❌ Anslutning till backend misslyckades. Servern kan vara i viloläge eller nere. Försök ladda om sidan.`;
+                statusDiv.className = 'status error';
+            }
+        }
+
+
+        function initMap() {
+            map = L.map('map').setView([51.505, -0.09], 5); // General view of Europe
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+        }
+
+
+        function setDefaultDates() {
+            const checkinInput = document.getElementById('checkin');
+            const checkoutInput = document.getElementById('checkout');
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+            const dayAfterTomorrow = new Date(today);
+            dayAfterTomorrow.setDate(today.getDate() + 2);
+
+            checkinInput.value = tomorrow.toISOString().split('T')[0];
+            checkoutInput.value = dayAfterTomorrow.toISOString().split('T')[0];
+            checkinInput.min = today.toISOString().split('T')[0];
+        }
+
+
+        async function populateSelectFields() {
+            const [citiesRes, roomTypesRes] = await Promise.all([
+                fetchWithRetry(`${BACKEND_URL}/api/cities`),
+                fetchWithRetry(`${BACKEND_URL}/api/room-types`)
+            ]);
+
+            if (!citiesRes.ok || !roomTypesRes.ok) {
+                throw new Error("Failed to fetch cities or room types from backend after multiple retries.");
+            }
+
+            const citiesData = await citiesRes.json();
+            const roomTypesData = await roomTypesRes.json();
+
+            const citySelect = document.getElementById('city');
+            citySelect.innerHTML = '';
+            const sortedCities = Object.keys(citiesData.cities).sort((a, b) => citiesData.cities[a].name.localeCompare(citiesData.cities[b].name));
+            
+            for (const key of sortedCities) {
+                const city = citiesData.cities[key];
+                const option = new Option(city.name, key);
+                citySelect.add(option);
+            }
+
+            const roomTypeSelect = document.getElementById('roomType');
+            roomTypeSelect.innerHTML = '';
+            for (const key in roomTypesData.room_types) {
+                const roomType = roomTypesData.room_types[key];
+                const option = new Option(`${roomType.name} (${roomType.guests} guests)`, key);
+                roomTypeSelect.add(option);
+            }
+        }
+
+
+        async function testBackendConnection() {
+            const statusDiv = document.getElementById('connectionStatus');
+            const response = await fetchWithRetry(`${BACKEND_URL}/test`);
+            if (!response.ok) throw new Error("Backend connection test failed");
+            const data = await response.json();
+            statusDiv.innerHTML = `✅ Ansluten till STAYFINDR Backend (${data.status})`;
+            statusDiv.className = 'status success-indicator';
+        }
+        
+
+        // ====================================================================
+        // === SÖKLOGIK & API-ANROP
+        // ====================================================================
+        async function searchHotels(event) {
+            event.preventDefault();
+            const searchButton = document.getElementById('searchButton');
+            const hotelsListDiv = document.getElementById('hotelsList');
+            const hotelsTitle = document.getElementById('hotelsTitle');
+            const citySelect = document.getElementById('city');
+
+            const params = {
+                city: citySelect.value,
+                room_type: document.getElementById('roomType').value,
+                checkin: document.getElementById('checkin').value,
+                checkout: document.getElementById('checkout').value,
+                adults: document.getElementById('adults').value
+            };
+            const source = document.querySelector('input[name="source"]:checked').value;
+
+            searchButton.disabled = true;
+            searchButton.innerHTML = '⏳ Söker...';
+            hotelsTitle.textContent = `Hämtar hotell i ${citySelect.options[citySelect.selectedIndex].text}...`;
+            hotelsListDiv.innerHTML = '<div class="loading">Letar efter de bästa erbjudandena...</div>';
+            clearMap();
+
+            try {
+                const hotels = await fetchHotels(source, params);
+                renderHotels(hotels, params);
+                updateMap(hotels);
+            } catch (error) {
+                console.error("Search failed:", error);
+                hotelsListDiv.innerHTML = `<div class="error">Sökningen misslyckades: ${error.message}</div>`;
+                hotelsTitle.textContent = "Något gick fel";
+            } finally {
+                searchButton.disabled = false;
+                searchButton.innerHTML = '🔍 Search Hotels';
+            }
+        }
+
+
+        async function fetchHotels(source, params) {
+            let hotels = [];
+            if (source === 'compare') {
+                const [bookingHotels, tripadvisorHotels] = await Promise.all([
+                    fetchFromSource('booking', params).catch(e => { console.error("Booking fetch failed:", e); return []; }),
+                    fetchFromSource('tripadvisor', params).catch(e => { console.error("TripAdvisor fetch failed:", e); return []; })
+                ]);
+                hotels = [...bookingHotels, ...tripadvisorHotels].sort((a, b) => (a.price || 9999) - (b.price || 9999));
+            } else {
+                hotels = await fetchFromSource(source, params);
+            }
+            return hotels;
+        }
+
+
+        async function fetchFromSource(source, params) {
+            const query = new URLSearchParams(params).toString();
+            const url = `${BACKEND_URL}/api/hotels/${source}?${query}`;
+            const response = await fetchWithRetry(url);
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`API-fel från ${source}: ${errorData.error || response.statusText}`);
+            }
+            const data = await response.json();
+            return data.hotels || [];
+        }
+
+
+        async function fetchWithRetry(url, options = {}, retries = 4, initialDelay = 3000) {
+            for (let i = 0; i < retries; i++) {
+                const delay = initialDelay * (i + 1);
+                console.log(`Attempt ${i + 1} of ${retries}: Fetching from ${url}...`);
+                try {
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        mode: 'cors',
+                        cache: 'no-cache',
+                        ...options
+                    });
+                    
+                    if (response.ok) {
+                        console.log(`Successfully fetched ${url}`);
+                        return response;
+                    }
+                    
+                    if (response.status >= 500) {
+                         console.warn(`Server error (${response.status}) on attempt ${i + 1}. Retrying in ${delay / 1000}s...`);
+                         await new Promise(res => setTimeout(res, delay));
+                         continue;
+                    }
+
+                    const errorText = await response.text();
+                    throw new Error(`Client error: ${response.status} ${response.statusText}. Body: ${errorText}`);
+
+                } catch (error) {
+                    console.error(`Network error on attempt ${i + 1}: ${error.message}.`);
+                    if (i === retries - 1) {
+                        throw new Error(`Could not connect to the backend at ${url} after ${retries} attempts. The server may be down or there is a network/CORS issue.`);
+                    }
+                    await new Promise(res => setTimeout(res, delay));
+                }
+            }
+        }
+
+
+        // ====================================================================
+        // === RENDERINGSFUNKTIONER (HTML & KARTA)
+        // ====================================================================
+        function renderHotels(hotels, params) {
+            const hotelsListDiv = document.getElementById('hotelsList');
+            const hotelsTitle = document.getElementById('hotelsTitle');
+            
+            if (!hotels || hotels.length === 0) {
+                hotelsListDiv.innerHTML = '<div class="error">Inga hotell hittades för dina val.</div>';
+                hotelsTitle.textContent = "Inga resultat";
+                return;
+            }
+
+            hotelsTitle.textContent = `Hittade ${hotels.length} hotell`;
+            const nights = Math.ceil((new Date(params.checkout) - new Date(params.checkin)) / (1000 * 60 * 60 * 24)) || 1;
+
+            hotelsListDiv.innerHTML = hotels.map((hotel, index) => {
+                const priceText = hotel.price !== 'N/A' && hotel.price ? `€${hotel.price} <span style="font-size:0.8em; color:#777;">/ natt</span>` : 'Pris ej tillgängligt';
+                const ratingStars = '⭐'.repeat(Math.round(hotel.rating));
+                const sourceName = hotel.source.charAt(0).toUpperCase() + hotel.source.slice(1).replace('.com', '');
+                
+                return `
+                    <div class="hotel-card" data-hotel-index="${index}" onmouseover="highlightMarker(${index})" onmouseout="unhighlightMarker(${index})">
+                        <div class="hotel-name">${hotel.name}</div>
+                        <div class="hotel-details">${hotel.address}</div>
+                        <div class="price-info">
+                            <span class="price">${priceText}</span>
+                            <span class="rating">${ratingStars} (${hotel.rating})</span>
+                        </div>
+                        <a href="${hotel.booking_url}" target="_blank" class="book-btn">Se erbjudande på ${sourceName}</a>
+                    </div>
+                `;
+            }).join('');
+        }
+
+
+        function updateMap(hotels) {
+            clearMap();
+            if (!hotels || hotels.length === 0) return;
+
+            const hotelCoordinates = hotels.map(h => h.coordinates).filter(c => c && c.length === 2 && c[0] !== 0 && c[1] !== 0);
+            if(hotelCoordinates.length === 0) return;
+
+            const bounds = L.latLngBounds(hotelCoordinates);
+            map.fitBounds(bounds, { padding: [50, 50] });
+
+            hotels.forEach((hotel, index) => {
+                if(!hotel.coordinates || hotel.coordinates[0] === 0) return;
+                
+                const marker = L.marker(hotel.coordinates)
+                    .addTo(map)
+                    .bindPopup(`<b>${hotel.name}</b><br>€${hotel.price || '?'}/natt`);
+                
+                marker.on('click', () => {
+                    const card = document.querySelector(`.hotel-card[data-hotel-index="${index}"]`);
+                    if (card) {
+                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        card.classList.add('highlighted');
+                        setTimeout(() => card.classList.remove('highlighted'), 2000);
+                    }
+                });
+                currentMarkers.push(marker);
+            });
+        }
+
+
+        function highlightMarker(index) {
+            if (currentMarkers[index]) {
+                currentMarkers[index].openPopup();
+            }
+        }
+        
+        
+        function unhighlightMarker(index) {
+             if (currentMarkers[index]) {
+                currentMarkers[index].closePopup();
+            }
+        }
+
+
+        function clearMap() {
+            currentMarkers.forEach(marker => map.removeLayer(marker));
+            currentMarkers = [];
+        }
+
+    </script>
+</body>
+</html>
