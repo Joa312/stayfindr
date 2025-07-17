@@ -171,6 +171,7 @@
             display: flex;
             flex-direction: column;
             gap: 15px; /* Avstånd mellan sektioner i kortet */
+            box-sizing: border-box;
         }
         .hotel-card:hover {
             transform: translateY(-3px);
@@ -222,9 +223,8 @@
         }
         .book-btn {
             display: block;
-            width: 100%;
             padding: 12px 15px;
-            box-sizing: border-box; /* Garanterar att padding inkluderas i bredden */
+            box-sizing: border-box;
             border: none;
             border-radius: 8px;
             font-size: 1rem;
@@ -659,6 +659,13 @@
         // ====================================================================
         // === RENDERINGSFUNKTIONER (HTML & KARTA)
         // ====================================================================
+        
+        // KORRIGERING: Ny hjälpfunktion för att formatera tal korrekt
+        function formatNumber(num) {
+            // Använder 'sv-SE' (svensk) formatering för att få mellanslag som tusentalsavgränsare.
+            return num.toLocaleString('sv-SE');
+        }
+
         function renderHotels(hotels, params) {
             const hotelsListDiv = document.getElementById('hotelsList');
             const hotelsTitle = document.getElementById('hotelsTitle');
@@ -689,14 +696,16 @@
                         displaySymbol = currencySymbol;
                     }
 
+                    // KORRIGERING: Använder den nya formateringsfunktionen och ändrar ordningen.
+                    const formattedPrice = formatNumber(Math.round(displayPrice));
                     const nightText = nights === 1 ? 'natt' : 'nätter';
-                    priceText = `${displaySymbol}${Math.round(displayPrice)} <span style="font-size:0.8em; color:#777;">för ${nights} ${nightText}</span>`;
+                    priceText = `${formattedPrice} ${displaySymbol} <span style="font-size:0.8em; color:#777;">för ${nights} ${nightText}</span>`;
+
                 } else {
                     priceText = 'Pris ej tillgängligt';
                 }
 
                 const ratingStars = '⭐'.repeat(Math.round(hotel.rating));
-                // OBS: hotel.phone är en platshållare. Din backend måste uppdateras för att skicka denna data.
                 const phone = hotel.phone || 'Telefon ej tillgängligt'; 
                 const sourceName = hotel.source.charAt(0).toUpperCase() + hotel.source.slice(1).replace('.com', '');
                 
