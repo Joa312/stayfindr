@@ -364,7 +364,12 @@
         const BACKEND_URL = 'https://actionly.onrender.com';
         let map;
         let currentMarkers = [];
-        let citiesDataCache = null; // Cache for city data
+        let citiesDataCache = null;
+        
+        // NYTT: Variabler för att hantera valuta
+        let userCurrency = 'EUR';
+        let currencySymbol = '€';
+        let exchangeRates = null;
 
         // ====================================================================
         // === INITIALISERING & STARTFUNKTIONER
@@ -380,6 +385,10 @@
                 initMap();
                 setupEventListeners();
                 setDefaultDates();
+                
+                // NYTT: Sätter upp valuta baserat på användarens position
+                await setupCurrency(); 
+                
                 await populateSelectFields();
                 await testBackendConnection();
             } catch (error) {
@@ -388,6 +397,50 @@
                 statusDiv.className = 'status error';
             }
         }
+        
+        // NYTT: Funktion för att hämta växelkurser och bestämma användarens valuta
+        async function setupCurrency() {
+            console.log("Setting up currency...");
+            try {
+                // Hämta växelkurser från en gratis API
+                const ratesResponse = await fetch('https://api.exchangerate-api.com/v4/latest/EUR');
+                if (!ratesResponse.ok) throw new Error('Could not fetch exchange rates.');
+                exchangeRates = await ratesResponse.json();
+                console.log("Exchange rates loaded.");
+
+                // Mappning från landskod till valuta
+                const countryToCurrencyMap = {
+                    SE: { code: 'SEK', symbol: 'kr' }, DE: { code: 'EUR', symbol: '€' },
+                    GB: { code: 'GBP', symbol: '£' }, US: { code: 'USD', symbol: '$' },
+                    NO: { code: 'NOK', symbol: 'kr' }, DK: { code: 'DKK', symbol: 'kr' },
+                    CH: { code: 'CHF', symbol: 'CHF'}, PL: { code: 'PLN', symbol: 'zł' },
+                    CZ: { code: 'CZK', symbol: 'Kč'}, HU: { code: 'HUF', symbol: 'Ft' }
+                };
+
+                // Försök hämta position
+                const position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+                });
+                
+                // Använd en gratis reverse geocoding-tjänst
+                const geoResponse = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${position.coords.latitude}&longitude=${position.coords.longitude}&localityLanguage=en`);
+                const geoData = await geoResponse.json();
+                const countryCode = geoData.countryCode;
+
+                if (countryToCurrencyMap[countryCode]) {
+                    userCurrency = countryToCurrencyMap[countryCode].code;
+                    currencySymbol = countryToCurrencyMap[countryCode].symbol;
+                    console.log(`Currency set to ${userCurrency} based on location: ${countryCode}`);
+                }
+
+            } catch (error) {
+                console.warn("Could not determine currency from geolocation, defaulting to EUR.", error.message);
+                // Fallback till EUR om något går fel
+                userCurrency = 'EUR';
+                currencySymbol = '€';
+            }
+        }
+
 
         function initMap() {
             map = L.map('map').setView([51.505, -0.09], 5);
@@ -602,7 +655,8 @@
                 return;
             }
 
-            hotelsTitle.textContent = `Hittade ${hotels.length} hotell i ${selectedCityName}`;
+            // NYTT: Visa vilken valuta som används i rubriken
+            hotelsTitle.textContent = `Hittade ${hotels.length} hotell i ${selectedCityName} (Priser i ${userCurrency})`;
             
             const nights = Math.ceil((new Date(params.checkout) - new Date(params.checkin)) / (1000 * 60 * 60 * 24)) || 1;
 
@@ -610,9 +664,20 @@
                 
                 let priceText;
                 if (hotel.price !== 'N/A' && hotel.price) {
-                    const totalPrice = hotel.price * nights;
+                    const priceInEur = hotel.price;
+                    const totalPriceInEur = priceInEur * nights;
+
+                    let displayPrice = totalPriceInEur;
+                    let displaySymbol = '€';
+                    
+                    // NYTT: Konvertera priset om valutan inte är EUR och kursen finns
+                    if (userCurrency !== 'EUR' && exchangeRates && exchangeRates.rates[userCurrency]) {
+                        displayPrice = totalPriceInEur * exchangeRates.rates[userCurrency];
+                        displaySymbol = currencySymbol;
+                    }
+
                     const nightText = nights === 1 ? 'natt' : 'nätter';
-                    priceText = `€${totalPrice} <span style="font-size:0.8em; color:#777;">för ${nights} ${nightText}</span>`;
+                    priceText = `${displaySymbol}${Math.round(displayPrice)} <span style="font-size:0.8em; color:#777;">för ${nights} ${nightText}</span>`;
                 } else {
                     priceText = 'Pris ej tillgängligt';
                 }
@@ -690,4 +755,4 @@
         }
     </script>
 </body>
-</ht
+</html>
