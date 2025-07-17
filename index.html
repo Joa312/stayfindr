@@ -65,6 +65,9 @@
             border-radius: 8px;
             font-size: 16px;
             font-weight: 600;
+            font-family: 'Segoe UI', sans-serif;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
             cursor: pointer;
             transition: transform 0.2s;
         }
@@ -454,6 +457,98 @@
         const BACKEND_URL = 'https://actionly.onrender.com';
 
         // Room type configurations
+        const CURRENCY_MAP = {
+            'SE': { symbol: 'kr', rate: 11.50, name: 'SEK' },    // Sverige
+            'DK': { symbol: 'kr', rate: 7.45, name: 'DKK' },     // Danmark  
+            'NO': { symbol: 'kr', rate: 12.20, name: 'NOK' },    // Norge
+            'DE': { symbol: '€', rate: 1.00, name: 'EUR' },      // Tyskland
+            'FR': { symbol: '€', rate: 1.00, name: 'EUR' },      // Frankrike
+            'ES': { symbol: '€', rate: 1.00, name: 'EUR' },      // Spanien
+            'IT': { symbol: '€', rate: 1.00, name: 'EUR' },      // Italien
+            'AT': { symbol: '€', rate: 1.00, name: 'EUR' },      // Österrike
+            'BE': { symbol: '€', rate: 1.00, name: 'EUR' },      // Belgien
+            'NL': { symbol: '€', rate: 1.00, name: 'EUR' },      // Nederländerna
+            'GB': { symbol: '£', rate: 0.85, name: 'GBP' },      // Storbritannien
+            'CH': { symbol: 'CHF', rate: 0.92, name: 'CHF' },    // Schweiz
+            'CZ': { symbol: 'Kč', rate: 25.50, name: 'CZK' },    // Tjeckien
+            'PL': { symbol: 'zł', rate: 4.30, name: 'PLN' },     // Polen
+            'HU': { symbol: 'Ft', rate: 385, name: 'HUF' }       // Ungern
+        };
+
+        const CITY_TO_COUNTRY = {
+            'stockholm': 'SE', 'oslo': 'NO', 'helsinki': 'FI', 'copenhagen': 'DK',
+            'paris': 'FR', 'lyon': 'FR', 'nice': 'FR',
+            'london': 'GB', 'edinburgh': 'GB',
+            'amsterdam': 'NL', 'brussels': 'BE',
+            'barcelona': 'ES', 'madrid': 'ES', 'palma': 'ES', 'ibiza': 'ES',
+            'rome': 'IT', 'milano': 'IT', 'florence': 'IT',
+            'berlin': 'DE', 'munich': 'DE',
+            'vienna': 'AT', 'zurich': 'CH',
+            'prague': 'CZ', 'warsaw': 'PL', 'budapest': 'HU',
+            'dublin': 'IE', 'lisbon': 'PT', 'athens': 'GR', 'santorini': 'GR'
+        };
+
+        function detectUserCountry() {
+            // Method 1: Browser language (most reliable for Europeans)
+            const browserLang = navigator.language || navigator.languages[0];
+            if (browserLang) {
+                const countryCode = browserLang.split('-')[1];
+                if (countryCode && CURRENCY_MAP[countryCode]) {
+                    return countryCode;
+                }
+            }
+            
+            // Method 2: Timezone detection (backup)
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const timezoneToCountry = {
+                'Europe/Stockholm': 'SE',
+                'Europe/Copenhagen': 'DK', 
+                'Europe/Oslo': 'NO',
+                'Europe/Berlin': 'DE',
+                'Europe/Paris': 'FR',
+                'Europe/London': 'GB',
+                'Europe/Rome': 'IT',
+                'Europe/Madrid': 'ES'
+            };
+            
+            if (timezoneToCountry[timezone]) {
+                return timezoneToCountry[timezone];
+            }
+            
+            // Default: Sweden (since you're Swedish)
+            return 'SE';
+        }
+
+        function getSmartCurrency(priceEUR, searchedCity) {
+            const userCountry = detectUserCountry();
+            const hotelCountry = CITY_TO_COUNTRY[searchedCity] || 'DE';
+            
+            // Get user's preferred currency
+            const userCurrency = CURRENCY_MAP[userCountry];
+            const hotelCurrency = CURRENCY_MAP[hotelCountry];
+            
+            // Smart conversion logic
+            if (userCountry === hotelCountry) {
+                // Same country - show original price in local currency
+                return {
+                    price: Math.round(priceEUR * hotelCurrency.rate),
+                    symbol: hotelCurrency.symbol
+                };
+            } else if (userCurrency.name === hotelCurrency.name) {
+                // Same currency (e.g., both EUR countries) - no conversion needed
+                return {
+                    price: priceEUR,
+                    symbol: userCurrency.symbol
+                };
+            } else {
+                // Different countries - convert to user's currency
+                const convertedPrice = Math.round(priceEUR * userCurrency.rate);
+                return {
+                    price: convertedPrice,
+                    symbol: userCurrency.symbol
+                };
+            }
+        }
         const ROOM_TYPES = {
             'single': {
                 guests: 1,
@@ -715,11 +810,12 @@
 
             let html = '';
             hotels.forEach((hotel, index) => {
-                // Format price with Swedish currency and spacing
+                // Smart currency formatting based on user location and hotel city
                 let priceDisplay = 'Price on request';
                 if (hotel.price !== 'N/A' && hotel.price) {
-                    const formattedPrice = hotel.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-                    priceDisplay = `${formattedPrice} kr/stay`;
+                    const currencyInfo = getSmartCurrency(hotel.price, city);
+                    const formattedPrice = currencyInfo.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+                    priceDisplay = `${formattedPrice} ${currencyInfo.symbol}/stay`;
                 }
                 const stars = '⭐'.repeat(Math.floor(hotel.rating || 4));
                 const source = hotel.source || 'unknown';
@@ -796,7 +892,11 @@
                         .addTo(map)
                         .bindPopup(`
                             <b>${hotel.name}</b><br>
-                            ${hotel.price !== 'N/A' && hotel.price ? `${hotel.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} kr/stay` : 'Price on request'}<br>
+                            ${hotel.price !== 'N/A' && hotel.price ? (() => {
+                                const currencyInfo = getSmartCurrency(hotel.price, city);
+                                const formattedPrice = currencyInfo.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+                                return `${formattedPrice} ${currencyInfo.symbol}/stay`;
+                            })() : 'Price on request'}<br>
                             ⭐ ${hotel.rating || 4.0}/5<br>
                             <small>Source: ${hotel.source || 'API'}</small>
                         `);
