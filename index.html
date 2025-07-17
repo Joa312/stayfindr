@@ -170,7 +170,7 @@
             cursor: pointer;
             display: flex;
             flex-direction: column;
-            gap: 15px; /* Avstånd mellan sektioner i kortet */
+            gap: 15px;
             box-sizing: border-box;
         }
         .hotel-card:hover {
@@ -204,10 +204,10 @@
         }
         .price-info {
             display: flex;
-            justify-content: space-between; /* Sprid ut pris och betyg */
+            justify-content: space-between;
             align-items: center;
             padding-top: 15px;
-            border-top: 1px solid #ecf0f1; /* Avdelare */
+            border-top: 1px solid #ecf0f1;
         }
         .price {
             font-size: 1.3rem;
@@ -236,7 +236,7 @@
             color: white;
             box-shadow: 0 4px 12px rgba(39, 174, 96, 0.4);
             text-align: center;
-            margin-top: auto; /* Knappen längst ner om korten har olika höjd */
+            margin-top: auto;
         }
         .book-btn:hover {
             background: #229954;
@@ -660,9 +660,7 @@
         // === RENDERINGSFUNKTIONER (HTML & KARTA)
         // ====================================================================
         
-        // KORRIGERING: Ny hjälpfunktion för att formatera tal korrekt
         function formatNumber(num) {
-            // Använder 'sv-SE' (svensk) formatering för att få mellanslag som tusentalsavgränsare.
             return num.toLocaleString('sv-SE');
         }
 
@@ -696,7 +694,6 @@
                         displaySymbol = currencySymbol;
                     }
 
-                    // KORRIGERING: Använder den nya formateringsfunktionen och ändrar ordningen.
                     const formattedPrice = formatNumber(Math.round(displayPrice));
                     const nightText = nights === 1 ? 'natt' : 'nätter';
                     priceText = `${formattedPrice} ${displaySymbol} <span style="font-size:0.8em; color:#777;">för ${nights} ${nightText}</span>`;
