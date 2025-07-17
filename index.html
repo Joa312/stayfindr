@@ -417,7 +417,7 @@
                 </div>
                 <div class="form-group">
                     <button type="submit" class="search-btn" id="searchButton">
-                        🔍 Search Hotels
+                        SEARCH
                     </button>
                 </div>
             </form>
@@ -574,17 +574,7 @@
                     
                     // Update button text based on source
                     const searchBtn = document.getElementById('searchButton');
-                    switch(currentSearchSource) {
-                        case 'dual':
-                            searchBtn.innerHTML = '🔄 Search Both Sources';
-                            break;
-                        case 'booking':
-                            searchBtn.innerHTML = '🟦 Search Booking.com';
-                            break;
-                        case 'tripadvisor':
-                            searchBtn.innerHTML = '🟢 Search TripAdvisor';
-                            break;
-                    }
+                    searchBtn.innerHTML = 'SEARCH';
                 });
             });
 
@@ -619,7 +609,7 @@
 
             searchButton.disabled = true;
             const originalText = searchButton.innerHTML;
-            searchButton.innerHTML = '⏳ Searching...';
+            searchButton.innerHTML = 'SEARCHING...';
             hotelsList.innerHTML = `<div class="loading">🔍 Searching ${getSourceName(currentSearchSource)}...</div>`;
             hotelsTitle.innerHTML = `Hotels in ${city}`;
 
@@ -725,7 +715,12 @@
 
             let html = '';
             hotels.forEach((hotel, index) => {
-                const priceDisplay = hotel.price !== 'N/A' && hotel.price ? `€${hotel.price}/night` : 'Price on request';
+                // Format price with Swedish currency and spacing
+                let priceDisplay = 'Price on request';
+                if (hotel.price !== 'N/A' && hotel.price) {
+                    const formattedPrice = hotel.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+                    priceDisplay = `${formattedPrice} kr/stay`;
+                }
                 const stars = '⭐'.repeat(Math.floor(hotel.rating || 4));
                 const source = hotel.source || 'unknown';
                 
@@ -801,7 +796,7 @@
                         .addTo(map)
                         .bindPopup(`
                             <b>${hotel.name}</b><br>
-                            ${hotel.price !== 'N/A' && hotel.price ? `€${hotel.price}/night` : 'Price on request'}<br>
+                            ${hotel.price !== 'N/A' && hotel.price ? `${hotel.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} kr/stay` : 'Price on request'}<br>
                             ⭐ ${hotel.rating || 4.0}/5<br>
                             <small>Source: ${hotel.source || 'API'}</small>
                         `);
