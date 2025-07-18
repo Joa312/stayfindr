@@ -15,9 +15,9 @@
         }
         .container { max-width: 1400px; margin: 0 auto; }
         .header { text-align: center; color: white; margin-bottom: 30px; }
-        .header h1 { 
-            font-size: 3rem; 
-            font-weight: 700; 
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
             margin-bottom: 10px;
             background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
             -webkit-background-clip: text;
@@ -33,7 +33,7 @@
         }
         .search-form {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
             align-items: end;
         }
@@ -65,9 +65,6 @@
             border-radius: 8px;
             font-size: 16px;
             font-weight: 600;
-            font-family: 'Segoe UI', sans-serif;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
             cursor: pointer;
             transition: transform 0.2s;
         }
@@ -78,6 +75,26 @@
             background: #95a5a6;
             cursor: not-allowed;
             transform: none;
+        }
+        .api-toggle {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        .api-btn {
+            padding: 10px 20px;
+            border: 2px solid white;
+            background: transparent;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        .api-btn.active {
+            background: white;
+            color: #764ba2;
         }
         .main-content { 
             display: grid; 
@@ -130,6 +147,22 @@
             font-size: 0.9rem;
             margin-bottom: 10px;
         }
+        .hotel-source {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .source-booking {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .source-tripadvisor {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
         .price-info {
             display: flex;
             justify-content: space-between;
@@ -145,32 +178,10 @@
             color: #f39c12;
             font-weight: 500;
         }
-        .source-badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-        }
-        .source-booking {
-            background: #0071c2;
-            color: white;
-        }
-        .source-tripadvisor {
-            background: #00aa6c;
-            color: white;
-        }
-        .source-dual {
-            background: linear-gradient(45deg, #0071c2, #00aa6c);
-            color: white;
-        }
         .hotel-actions {
             display: flex;
             gap: 8px;
             margin-top: 10px;
-            flex-wrap: wrap;
         }
         .action-btn {
             padding: 8px 15px;
@@ -182,52 +193,21 @@
             text-decoration: none;
             display: inline-block;
             text-align: center;
-            font-weight: 500;
         }
-        .book-btn-booking {
-            background: #0071c2;
+        .book-btn {
+            background: #27ae60;
             color: white;
             flex: 1;
         }
-        .book-btn-booking:hover {
-            background: #005bb5;
+        .book-btn:hover {
+            background: #229954;
         }
-        .book-btn-tripadvisor {
-            background: #00aa6c;
-            color: white;
-            flex: 1;
-        }
-        .book-btn-tripadvisor:hover {
-            background: #009159;
-        }
-        .api-toggle {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            justify-content: center;
-        }
-        .toggle-btn {
-            padding: 8px 16px;
-            border: 2px solid #3498db;
-            background: white;
-            color: #3498db;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 500;
-        }
-        .toggle-btn.active {
-            background: #3498db;
+        .tripadvisor-btn {
+            background: #00af87;
             color: white;
         }
-        .room-type-info {
-            background: #e8f5e8;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            color: #2d5016;
-            margin-bottom: 10px;
-            border-left: 4px solid #27ae60;
+        .tripadvisor-btn:hover {
+            background: #00a478;
         }
         .loading {
             text-align: center;
@@ -250,89 +230,35 @@
             margin: 10px 0;
             text-align: center;
         }
-
+        .room-type-msg {
+            font-size: 0.85rem;
+            color: #3498db;
+            font-style: italic;
+            margin-top: 5px;
+        }
         /* Mobile fixes */
         @media (max-width: 768px) {
             body {
                 padding: 10px !important;
             }
-            .container {
-                padding: 5px !important;
-            }
             .header h1 {
-                font-size: 2.5rem !important;
-            }
-            .header p {
-                font-size: 1rem !important;
-            }
-            .search-container {
-                padding: 20px !important;
-                margin-bottom: 15px !important;
+                font-size: 2rem !important;
             }
             .search-form {
                 grid-template-columns: 1fr !important;
-                gap: 10px !important;
-            }
-            .form-group select, .form-group input, .search-btn {
-                min-height: 44px !important;
-                font-size: 16px !important;
-                padding: 12px !important;
             }
             .main-content {
                 grid-template-columns: 1fr !important;
                 height: auto !important;
-                gap: 15px !important;
             }
             #map {
                 height: 300px !important;
-                margin-bottom: 15px !important;
             }
             .hotels-panel {
                 height: 500px !important;
-                padding: 15px !important;
             }
-            .hotel-card {
-                padding: 12px !important;
-                margin: 8px 0 !important;
-            }
-            .hotel-name {
-                font-size: 1rem !important;
-            }
-            .price {
-                font-size: 1.1rem !important;
-            }
-            .hotel-actions {
-                flex-wrap: wrap !important;
-                gap: 5px !important;
-            }
-            .action-btn {
-                flex: 1 !important;
-                min-width: 120px !important;
-                padding: 10px 8px !important;
-                font-size: 0.8rem !important;
-            }
-            .status {
-                font-size: 0.9rem !important;
-                padding: 8px !important;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .header h1 {
-                font-size: 2rem !important;
-            }
-            .search-container {
-                padding: 15px !important;
-            }
-            #map {
-                height: 250px !important;
-            }
-            .hotels-panel {
-                height: 400px !important;
-                padding: 10px !important;
-            }
-            .hotel-card {
-                padding: 10px !important;
+            .api-toggle {
+                flex-wrap: wrap;
             }
         }
     </style>
@@ -342,53 +268,30 @@
         <div class="header">
             <h1>STAYFINDR</h1>
             <p>Save Time & Money: See Today's Hotel Prices Across Europe</p>
-            <p style="font-size: 0.9rem; opacity: 0.8;">v10.0 - Now with Dual API Integration</p>
         </div>
         
         <div class="status" id="connectionStatus">
-            🔗 Connecting to STAYFINDR v10.0 backend...
+            🔗 Connecting to STAYFINDR backend...
+        </div>
+
+        <div class="api-toggle">
+            <button class="api-btn active" onclick="setApiMode('dual')">
+                🏨 Both Sources
+            </button>
+            <button class="api-btn" onclick="setApiMode('booking')">
+                📘 Booking.com Only
+            </button>
+            <button class="api-btn" onclick="setApiMode('tripadvisor')">
+                🦉 TripAdvisor Only
+            </button>
         </div>
 
         <div class="search-container">
-            <div class="api-toggle">
-                <button class="toggle-btn active" data-source="dual">🔄 Both Sources</button>
-                <button class="toggle-btn" data-source="booking">🟦 Booking.com</button>
-                <button class="toggle-btn" data-source="tripadvisor">🟢 TripAdvisor</button>
-            </div>
-            
             <form id="searchForm" class="search-form">
                 <div class="form-group">
                     <label for="city">City</label>
                     <select id="city">
-                        <option value="stockholm">Stockholm, Sweden</option>
-                        <option value="paris">Paris, France</option>
-                        <option value="london">London, UK</option>
-                        <option value="amsterdam">Amsterdam, Netherlands</option>
-                        <option value="barcelona">Barcelona, Spain</option>
-                        <option value="rome">Rome, Italy</option>
-                        <option value="berlin">Berlin, Germany</option>
-                        <option value="copenhagen">Copenhagen, Denmark</option>
-                        <option value="vienna">Vienna, Austria</option>
-                        <option value="prague">Prague, Czech Republic</option>
-                        <option value="madrid">Madrid, Spain</option>
-                        <option value="milano">Milano, Italy</option>
-                        <option value="zurich">Zürich, Switzerland</option>
-                        <option value="oslo">Oslo, Norway</option>
-                        <option value="helsinki">Helsinki, Finland</option>
-                        <option value="warsaw">Warsaw, Poland</option>
-                        <option value="budapest">Budapest, Hungary</option>
-                        <option value="dublin">Dublin, Ireland</option>
-                        <option value="lisbon">Lisbon, Portugal</option>
-                        <option value="brussels">Brussels, Belgium</option>
-                        <option value="athens">Athens, Greece</option>
-                        <option value="munich">Munich, Germany</option>
-                        <option value="lyon">Lyon, France</option>
-                        <option value="florence">Florence, Italy</option>
-                        <option value="edinburgh">Edinburgh, Scotland</option>
-                        <option value="nice">Nice, France</option>
-                        <option value="palma">Palma, Spain</option>
-                        <option value="santorini">Santorini, Greece</option>
-                        <option value="ibiza">Ibiza, Spain</option>
+                        <option value="">Loading cities...</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -413,21 +316,18 @@
                     <label for="guests">Guests</label>
                     <select id="guests">
                         <option value="1">1 Guest</option>
-                        <option value="2">2 Guests</option>
+                        <option value="2" selected>2 Guests</option>
                         <option value="3">3 Guests</option>
                         <option value="4">4 Guests</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <button type="submit" class="search-btn" id="searchButton">
-                        SEARCH
+                        🔍 Search Hotels
                     </button>
                 </div>
             </form>
-            
-            <div id="roomTypeInfo" class="room-type-info" style="display: none;">
-                Standard rooms with modern amenities - Ready to search!
-            </div>
+            <div class="room-type-msg" id="roomTypeMsg">Double Room - Ideal for couples</div>
         </div>
 
         <div class="main-content">
@@ -435,12 +335,7 @@
             <div class="hotels-panel">
                 <h3 id="hotelsTitle">Hotels</h3>
                 <div id="hotelsList">
-                    <div class="loading">Select search source above and click "Search Hotels" to find real hotels</div>
-                </div>
-                <div id="loadMoreContainer" style="display: none; text-align: center; margin-top: 15px;">
-                    <button id="loadMoreBtn" class="search-btn" style="width: 100%;">
-                        📋 Show More Hotels
-                    </button>
+                    <div class="loading">Select a city and search for hotels</div>
                 </div>
             </div>
         </div>
@@ -451,234 +346,134 @@
         let map;
         let currentMarkers = [];
         let currentHotels = [];
-        let allHotelsData = [];
-        let currentlyShowing = 10;
-        let currentSearchSource = 'dual';
-        const BACKEND_URL = 'https://actionly.onrender.com';
+        let currentApiMode = 'dual';
+        let BACKEND_URL = 'https://actionly.onrender.com';
+        let loadedCities = {};
 
-        // Room type configurations
-        const CURRENCY_MAP = {
-            'SE': { symbol: 'kr', rate: 11.50, name: 'SEK' },    // Sverige
-            'DK': { symbol: 'kr', rate: 7.45, name: 'DKK' },     // Danmark  
-            'NO': { symbol: 'kr', rate: 12.20, name: 'NOK' },    // Norge
-            'DE': { symbol: '€', rate: 1.00, name: 'EUR' },      // Tyskland
-            'FR': { symbol: '€', rate: 1.00, name: 'EUR' },      // Frankrike
-            'ES': { symbol: '€', rate: 1.00, name: 'EUR' },      // Spanien
-            'IT': { symbol: '€', rate: 1.00, name: 'EUR' },      // Italien
-            'AT': { symbol: '€', rate: 1.00, name: 'EUR' },      // Österrike
-            'BE': { symbol: '€', rate: 1.00, name: 'EUR' },      // Belgien
-            'NL': { symbol: '€', rate: 1.00, name: 'EUR' },      // Nederländerna
-            'GB': { symbol: '£', rate: 0.85, name: 'GBP' },      // Storbritannien
-            'CH': { symbol: 'CHF', rate: 0.92, name: 'CHF' },    // Schweiz
-            'CZ': { symbol: 'Kč', rate: 25.50, name: 'CZK' },    // Tjeckien
-            'PL': { symbol: 'zł', rate: 4.30, name: 'PLN' },     // Polen
-            'HU': { symbol: 'Ft', rate: 385, name: 'HUF' }       // Ungern
+        // Room type descriptions
+        const roomDescriptions = {
+            'single': 'Single Room - Perfect for solo travelers',
+            'double': 'Double Room - Ideal for couples',
+            'family': 'Family Room - Spacious for families',
+            'junior_suite': 'Junior Suite - Spacious room with sitting area',
+            'suite': 'Suite/Apartment - Luxury accommodation with separate rooms'
         };
 
-        const CITY_TO_COUNTRY = {
-            'stockholm': 'SE', 'oslo': 'NO', 'helsinki': 'FI', 'copenhagen': 'DK',
-            'paris': 'FR', 'lyon': 'FR', 'nice': 'FR',
-            'london': 'GB', 'edinburgh': 'GB',
-            'amsterdam': 'NL', 'brussels': 'BE',
-            'barcelona': 'ES', 'madrid': 'ES', 'palma': 'ES', 'ibiza': 'ES',
-            'rome': 'IT', 'milano': 'IT', 'florence': 'IT',
-            'berlin': 'DE', 'munich': 'DE',
-            'vienna': 'AT', 'zurich': 'CH',
-            'prague': 'CZ', 'warsaw': 'PL', 'budapest': 'HU',
-            'dublin': 'IE', 'lisbon': 'PT', 'athens': 'GR', 'santorini': 'GR'
+        // Guest mapping for room types
+        const roomGuestMapping = {
+            'single': 1,
+            'double': 2,
+            'family': 4,
+            'junior_suite': 2,
+            'suite': 3
         };
 
-        function detectUserCountry() {
-            // Method 1: Browser language (most reliable for Europeans)
-            const browserLang = navigator.language || navigator.languages[0];
-            if (browserLang) {
-                const countryCode = browserLang.split('-')[1];
-                if (countryCode && CURRENCY_MAP[countryCode]) {
-                    return countryCode;
-                }
-            }
-            
-            // Method 2: Timezone detection (backup)
-            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            const timezoneToCountry = {
-                'Europe/Stockholm': 'SE',
-                'Europe/Copenhagen': 'DK', 
-                'Europe/Oslo': 'NO',
-                'Europe/Berlin': 'DE',
-                'Europe/Paris': 'FR',
-                'Europe/London': 'GB',
-                'Europe/Rome': 'IT',
-                'Europe/Madrid': 'ES'
-            };
-            
-            if (timezoneToCountry[timezone]) {
-                return timezoneToCountry[timezone];
-            }
-            
-            // Default: Sweden (since you're Swedish)
-            return 'SE';
-        }
-
-        function getSmartCurrency(priceEUR, searchedCity) {
-            const userCountry = detectUserCountry();
-            const hotelCountry = CITY_TO_COUNTRY[searchedCity] || 'DE';
-            
-            // Get user's preferred currency
-            const userCurrency = CURRENCY_MAP[userCountry];
-            const hotelCurrency = CURRENCY_MAP[hotelCountry];
-            
-            // Smart conversion logic
-            if (userCountry === hotelCountry) {
-                // Same country - show original price in local currency
-                return {
-                    price: Math.round(priceEUR * hotelCurrency.rate),
-                    symbol: hotelCurrency.symbol
-                };
-            } else if (userCurrency.name === hotelCurrency.name) {
-                // Same currency (e.g., both EUR countries) - no conversion needed
-                return {
-                    price: priceEUR,
-                    symbol: userCurrency.symbol
-                };
-            } else {
-                // Different countries - convert to user's currency
-                const convertedPrice = Math.round(priceEUR * userCurrency.rate);
-                return {
-                    price: convertedPrice,
-                    symbol: userCurrency.symbol
-                };
-            }
-        }
-        const ROOM_TYPES = {
-            'single': {
-                guests: 1,
-                description: 'Single room perfect for solo travelers - Ready to search!'
-            },
-            'double': {
-                guests: 2,
-                description: 'Standard rooms with modern amenities - Ready to search!'
-            },
-            'family': {
-                guests: 4,
-                description: 'Spacious family rooms for 3-4 guests - Ready to search!'
-            },
-            'junior_suite': {
-                guests: 2,
-                description: 'Spacious room with sitting area - Ready to search!'
-            },
-            'suite': {
-                guests: 3,
-                description: 'Luxury suites and apartments for ultimate comfort - Ready to search!'
-            }
-        };
-
-        // Wait for Leaflet to load properly
-        function waitForLeaflet() {
-            return new Promise((resolve) => {
-                function checkLeaflet() {
-                    if (typeof L !== 'undefined') {
-                        console.log('✅ Leaflet loaded successfully');
-                        resolve();
-                    } else {
-                        console.log('⏳ Waiting for Leaflet...');
-                        setTimeout(checkLeaflet, 100);
-                    }
-                }
-                checkLeaflet();
-            });
-        }
-
-        // Initialize the application
-        function initializeApp() {
-            console.log('🚀 Initializing STAYFINDR v10.0 with dual API backend...');
-            
-            testBackendConnection();
-            initMap();
-            setupEventListeners();
-            setDefaultDates();
-            
-            console.log('✅ STAYFINDR v10.0 initialized successfully');
-        }
-
-        async function testBackendConnection() {
+        async function loadCitiesFromBackend() {
             try {
                 const response = await fetch(`${BACKEND_URL}/api/cities`);
                 if (response.ok) {
                     const data = await response.json();
-                    document.getElementById('connectionStatus').innerHTML = `✅ Connected to STAYFINDR v10.0 backend - ${data.total} cities available!`;
+                    loadedCities = data.cities;
+                    populateCityDropdown(data.cities);
+                    document.getElementById('connectionStatus').innerHTML = 
+                        `✅ Connected to STAYFINDR - ${data.total} European cities available!`;
                     document.getElementById('connectionStatus').className = 'status success-indicator';
                 } else {
-                    throw new Error('Backend not responding');
+                    throw new Error('Failed to load cities');
                 }
             } catch (error) {
-                document.getElementById('connectionStatus').innerHTML = '❌ Backend offline - Using fallback data';
-                document.getElementById('connectionStatus').className = 'status error';
+                console.error('Error loading cities:', error);
+                // Fallback to hardcoded cities
+                populateWithFallbackCities();
             }
+        }
+
+        function populateCityDropdown(cities) {
+            const citySelect = document.getElementById('city');
+            citySelect.innerHTML = '<option value="">Select a city</option>';
+            
+            // Sort cities alphabetically by display name
+            const sortedCities = Object.entries(cities).sort((a, b) => 
+                a[1].name.localeCompare(b[1].name)
+            );
+            
+            sortedCities.forEach(([key, city]) => {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = city.name;
+                citySelect.appendChild(option);
+            });
+        }
+
+        function populateWithFallbackCities() {
+            // Minimal fallback if backend fails
+            const fallbackCities = {
+                'stockholm': 'Stockholm, Sweden',
+                'paris': 'Paris, France',
+                'london': 'London, UK',
+                'amsterdam': 'Amsterdam, Netherlands',
+                'barcelona': 'Barcelona, Spain'
+            };
+            
+            const citySelect = document.getElementById('city');
+            citySelect.innerHTML = '<option value="">Select a city</option>';
+            
+            Object.entries(fallbackCities).forEach(([key, name]) => {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = name;
+                citySelect.appendChild(option);
+            });
+            
+            document.getElementById('connectionStatus').innerHTML = 
+                '⚠️ Limited mode - Only 5 cities available';
         }
 
         function initMap() {
-            try {
-                map = L.map('map').setView([59.3293, 18.0686], 6);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors'
-                }).addTo(map);
-                console.log('🗺️ Map initialized successfully');
-            } catch (error) {
-                console.error('Map initialization failed:', error);
-            }
+            map = L.map('map').setView([50.0, 10.0], 4); // Center of Europe
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
         }
 
         function setupEventListeners() {
-            const searchForm = document.getElementById('searchForm');
-            if (searchForm) {
-                searchForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    searchHotels();
-                });
-                console.log('📋 Form event listeners setup');
-            }
-
-            // Room type change handler
-            const roomTypeSelect = document.getElementById('roomType');
-            const guestsSelect = document.getElementById('guests');
-            const roomTypeInfo = document.getElementById('roomTypeInfo');
-
-            if (roomTypeSelect && guestsSelect && roomTypeInfo) {
-                roomTypeSelect.addEventListener('change', function() {
-                    const roomType = this.value;
-                    const config = ROOM_TYPES[roomType];
-                    
-                    if (config) {
-                        guestsSelect.value = config.guests;
-                        roomTypeInfo.textContent = config.description;
-                        roomTypeInfo.style.display = 'block';
-                    }
-                });
-                
-                // Trigger initial update
-                roomTypeSelect.dispatchEvent(new Event('change'));
-            }
-
-            // API source toggle handlers
-            const toggleBtns = document.querySelectorAll('.toggle-btn');
-            toggleBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    toggleBtns.forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    currentSearchSource = this.dataset.source;
-                    
-                    // Update button text based on source
-                    const searchBtn = document.getElementById('searchButton');
-                    searchBtn.innerHTML = 'SEARCH';
-                });
+            document.getElementById('searchForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                searchHotels();
             });
 
-            const loadMoreBtn = document.getElementById('loadMoreBtn');
-            if (loadMoreBtn) {
-                loadMoreBtn.addEventListener('click', function() {
-                    showMoreHotels();
-                });
-            }
+            // Room type change handler
+            document.getElementById('roomType').addEventListener('change', function() {
+                const roomType = this.value;
+                const guestsSelect = document.getElementById('guests');
+                
+                // Update guests based on room type
+                guestsSelect.value = roomGuestMapping[roomType];
+                
+                // Update description
+                document.getElementById('roomTypeMsg').textContent = 
+                    roomDescriptions[roomType] + ' - Ready to search!';
+            });
+        }
+
+        function setApiMode(mode) {
+            currentApiMode = mode;
+            
+            // Update button states
+            document.querySelectorAll('.api-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update status
+            const modeText = {
+                'dual': 'Both Booking.com and TripAdvisor',
+                'booking': 'Booking.com only',
+                'tripadvisor': 'TripAdvisor only'
+            };
+            
+            document.getElementById('connectionStatus').innerHTML = 
+                `🔍 Search mode: ${modeText[mode]}`;
         }
 
         function setDefaultDates() {
@@ -696,33 +491,31 @@
             const checkout = document.getElementById('checkout').value;
             const guests = document.getElementById('guests').value;
 
-            console.log(`🔍 Searching hotels: ${city}, ${roomType}, ${checkin} to ${checkout}, ${guests} guests via ${currentSearchSource}`);
+            if (!city) {
+                alert('Please select a city');
+                return;
+            }
 
             const searchButton = document.getElementById('searchButton');
             const hotelsList = document.getElementById('hotelsList');
             const hotelsTitle = document.getElementById('hotelsTitle');
 
             searchButton.disabled = true;
-            const originalText = searchButton.innerHTML;
-            searchButton.innerHTML = 'SEARCHING...';
-            hotelsList.innerHTML = `<div class="loading">🔍 Searching ${getSourceName(currentSearchSource)}...</div>`;
-            hotelsTitle.innerHTML = `Hotels in ${city}`;
+            searchButton.innerHTML = '⏳ Searching...';
+            hotelsList.innerHTML = '<div class="loading">🔍 Searching hotels from ' + 
+                (currentApiMode === 'dual' ? 'both sources' : currentApiMode) + '...</div>';
+
+            // Get city name from loaded cities
+            const cityName = loadedCities[city]?.name || city;
+            hotelsTitle.innerHTML = `Hotels in ${cityName}`;
 
             try {
-                let endpoint;
-                switch(currentSearchSource) {
-                    case 'dual':
-                        endpoint = '/api/hotels/dual';
-                        break;
-                    case 'booking':
-                        endpoint = '/api/hotels/booking';
-                        break;
-                    case 'tripadvisor':
-                        endpoint = '/api/hotels/tripadvisor';
-                        break;
-                }
-
-                const response = await fetch(`${BACKEND_URL}${endpoint}?city=${city}&checkin=${checkin}&checkout=${checkout}&adults=${guests}&rooms=1&room_type=${roomType}`);
+                // Choose endpoint based on mode
+                const endpoint = `/api/hotels/${currentApiMode}`;
+                
+                const response = await fetch(
+                    `${BACKEND_URL}${endpoint}?city=${city}&checkin=${checkin}&checkout=${checkout}&adults=${guests}&rooms=1&room_type=${roomType}`
+                );
                 
                 if (!response.ok) {
                     throw new Error(`API error: ${response.status}`);
@@ -730,179 +523,112 @@
 
                 const data = await response.json();
 
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-
                 if (data.hotels && data.hotels.length > 0) {
-                    allHotelsData = data.hotels;
-                    currentlyShowing = 10;
+                    displayHotels(data.hotels, roomType);
+                    updateMap(data.hotels);
                     
-                    displayHotels(data.hotels.slice(0, 10), data.city);
-                    updateMap(data.hotels.slice(0, 10));
-                    
-                    const loadMoreContainer = document.getElementById('loadMoreContainer');
-                    if (data.hotels.length > 10) {
-                        loadMoreContainer.style.display = 'block';
-                        updateLoadMoreButton();
-                    } else {
-                        loadMoreContainer.style.display = 'none';
+                    // Update status with source info
+                    let statusText = `✅ Found ${data.total_found} hotels in ${data.city}`;
+                    if (data.sources) {
+                        statusText += ` (${data.sources.booking} from Booking.com, ${data.sources.tripadvisor} from TripAdvisor)`;
                     }
                     
-                    document.getElementById('connectionStatus').innerHTML = 
-                        `✅ Found ${data.total_found || data.hotels.length} hotels in ${data.city} via ${getSourceName(currentSearchSource)}! (Showing ${Math.min(10, data.hotels.length)})`;
+                    document.getElementById('connectionStatus').innerHTML = statusText;
                     document.getElementById('connectionStatus').className = 'status success-indicator';
                 } else {
-                    hotelsList.innerHTML = '<div class="error">No hotels found for this city and dates.</div>';
-                    document.getElementById('loadMoreContainer').style.display = 'none';
+                    hotelsList.innerHTML = '<div class="error">No hotels found for this search.</div>';
                 }
 
             } catch (error) {
                 console.error('Search error:', error);
                 hotelsList.innerHTML = `<div class="error">Error: ${error.message}</div>`;
                 
-                document.getElementById('connectionStatus').innerHTML = '❌ Search failed - Check backend connection';
+                document.getElementById('connectionStatus').innerHTML = '❌ Search failed - Check connection';
                 document.getElementById('connectionStatus').className = 'status error';
             }
 
             searchButton.disabled = false;
-            searchButton.innerHTML = originalText;
+            searchButton.innerHTML = '🔍 Search Hotels';
         }
 
-        function getSourceName(source) {
-            switch(source) {
-                case 'dual': return 'Both Sources';
-                case 'booking': return 'Booking.com';
-                case 'tripadvisor': return 'TripAdvisor';
-                default: return 'Unknown Source';
-            }
-        }
-
-        function showMoreHotels() {
-            const nextBatch = Math.min(currentlyShowing + 10, allHotelsData.length);
-            const hotelsToShow = allHotelsData.slice(0, nextBatch);
-            
-            currentlyShowing = nextBatch;
-            
-            displayHotels(hotelsToShow, '');
-            updateMap(hotelsToShow);
-            updateLoadMoreButton();
-            
-            document.getElementById('connectionStatus').innerHTML = 
-                `✅ Showing ${currentlyShowing} of ${allHotelsData.length} hotels`;
-        }
-
-        function updateLoadMoreButton() {
-            const loadMoreBtn = document.getElementById('loadMoreBtn');
-            const loadMoreContainer = document.getElementById('loadMoreContainer');
-            
-            if (currentlyShowing >= allHotelsData.length) {
-                loadMoreContainer.style.display = 'none';
-            } else {
-                const remaining = allHotelsData.length - currentlyShowing;
-                loadMoreBtn.innerHTML = `📋 Show ${Math.min(10, remaining)} More Hotels (${remaining} remaining)`;
-            }
-        }
-
-        function displayHotels(hotels, cityName) {
+        function displayHotels(hotels, roomType) {
             currentHotels = hotels;
             const hotelsList = document.getElementById('hotelsList');
 
             let html = '';
             hotels.forEach((hotel, index) => {
-                // Smart currency formatting based on user location and hotel city
-                let priceDisplay = 'Price on request';
-                if (hotel.price !== 'N/A' && hotel.price) {
-                    const currencyInfo = getSmartCurrency(hotel.price, city);
-                    const formattedPrice = currencyInfo.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-                    priceDisplay = `${formattedPrice} ${currencyInfo.symbol}/stay`;
-                }
-                const stars = '⭐'.repeat(Math.floor(hotel.rating || 4));
-                const source = hotel.source || 'unknown';
+                const priceDisplay = hotel.price !== 'N/A' ? `€${hotel.price}/night` : 'Check price';
+                const stars = '⭐'.repeat(Math.floor(hotel.rating));
                 
                 // Source badge
-                let sourceBadge = '';
-                if (source === 'booking.com') {
-                    sourceBadge = '<span class="source-badge source-booking">Booking.com</span>';
-                } else if (source === 'tripadvisor') {
-                    sourceBadge = '<span class="source-badge source-tripadvisor">TripAdvisor</span>';
-                } else if (currentSearchSource === 'dual') {
-                    sourceBadge = '<span class="source-badge source-dual">Dual Source</span>';
-                }
-
-                // Booking actions - handle both single and dual source
-                let actionButtons = '';
-                if (hotel.booking_url && hotel.tripadvisor_url) {
-                    // Dual source - both buttons
-                    actionButtons = `
-                        <a href="${hotel.booking_url}" target="_blank" class="action-btn book-btn-booking">
-                            Book on Booking.com
-                        </a>
-                        <a href="${hotel.tripadvisor_url}" target="_blank" class="action-btn book-btn-tripadvisor">
-                            View on TripAdvisor
-                        </a>
-                    `;
-                } else if (hotel.booking_url) {
-                    // Booking.com only
-                    actionButtons = `
-                        <a href="${hotel.booking_url}" target="_blank" class="action-btn book-btn-booking">
-                            Book on Booking.com
-                        </a>
-                    `;
-                } else if (hotel.tripadvisor_url) {
-                    // TripAdvisor only
-                    actionButtons = `
-                        <a href="${hotel.tripadvisor_url}" target="_blank" class="action-btn book-btn-tripadvisor">
-                            View on TripAdvisor
-                        </a>
-                    `;
-                }
+                const sourceClass = hotel.source === 'booking' ? 'source-booking' : 'source-tripadvisor';
+                const sourceText = hotel.source === 'booking' ? 'Booking.com' : 'TripAdvisor';
 
                 html += `
                     <div class="hotel-card" data-hotel-id="${hotel.id}" 
                          onmouseover="highlightMarker(${index})" 
                          onmouseout="unhighlightMarker(${index})">
-                        ${sourceBadge}
+                        <span class="hotel-source ${sourceClass}">${sourceText}</span>
                         <div class="hotel-name">${hotel.name}</div>
                         <div class="hotel-details">📍 ${hotel.address}</div>
                         <div class="price-info">
                             <span class="price">${priceDisplay}</span>
-                            <span class="rating">${stars} ${hotel.rating || 4.0}/5</span>
-                        </div>
-                        <div class="hotel-actions">
-                            ${actionButtons}
-                        </div>
-                    </div>
-                `;
+                            <span class="rating">${stars} ${hotel.rating}/5</span>
+                        </div>`;
+                
+                // Show reviews count if from TripAdvisor
+                if (hotel.reviews_count) {
+                    html += `<div class="hotel-details">${hotel.reviews_count} reviews</div>`;
+                }
+                
+                // Room type info
+                html += `<div class="hotel-details">Room type: ${roomDescriptions[roomType].split(' - ')[0]}</div>`;
+                
+                html += `<div class="hotel-actions">
+                            <a href="${hotel.booking_url}" target="_blank" class="action-btn book-btn">
+                                Book on Booking.com
+                            </a>`;
+                
+                // Add TripAdvisor button if available
+                if (hotel.tripadvisor_url) {
+                    html += `<a href="${hotel.tripadvisor_url}" target="_blank" class="action-btn tripadvisor-btn">
+                                View on TripAdvisor
+                            </a>`;
+                }
+                
+                html += `</div>
+                    </div>`;
             });
 
             hotelsList.innerHTML = html;
         }
 
         function updateMap(hotels) {
+            // Clear existing markers
             currentMarkers.forEach(marker => map.removeLayer(marker));
             currentMarkers = [];
 
             if (hotels.length > 0) {
-                const center = hotels[0].coordinates;
-                map.setView(center, 12);
+                // Get city coordinates from first hotel or use city center
+                const firstHotel = hotels[0];
+                const centerCoords = firstHotel.coordinates;
+                map.setView(centerCoords, 12);
 
+                // Add markers for each hotel
                 hotels.forEach((hotel, index) => {
-                    const marker = L.marker(hotel.coordinates)
-                        .addTo(map)
-                        .bindPopup(`
-                            <b>${hotel.name}</b><br>
-                            ${hotel.price !== 'N/A' && hotel.price ? (() => {
-                                const currencyInfo = getSmartCurrency(hotel.price, city);
-                                const formattedPrice = currencyInfo.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-                                return `${formattedPrice} ${currencyInfo.symbol}/stay`;
-                            })() : 'Price on request'}<br>
-                            ⭐ ${hotel.rating || 4.0}/5<br>
-                            <small>Source: ${hotel.source || 'API'}</small>
-                        `);
+                    if (hotel.coordinates && hotel.coordinates[0] && hotel.coordinates[1]) {
+                        const marker = L.marker(hotel.coordinates)
+                            .addTo(map)
+                            .bindPopup(`
+                                <b>${hotel.name}</b><br>
+                                ${hotel.price !== 'N/A' ? `€${hotel.price}/night` : 'Check price'}<br>
+                                ⭐ ${hotel.rating}/5<br>
+                                <small>${hotel.source === 'booking' ? '📘 Booking.com' : '🦉 TripAdvisor'}</small>
+                            `);
 
-                    marker.on('click', () => highlightHotelCard(index));
-                    currentMarkers.push(marker);
+                        marker.on('click', () => highlightHotelCard(index));
+                        currentMarkers.push(marker);
+                    }
                 });
             }
         }
@@ -932,9 +658,21 @@
 
         // Initialize when page loads
         document.addEventListener('DOMContentLoaded', async function() {
-            console.log('📄 Page loaded, waiting for Leaflet...');
-            await waitForLeaflet();
-            initializeApp();
+            console.log('📄 STAYFINDR v2.0 initializing...');
+            
+            // Load cities from backend
+            await loadCitiesFromBackend();
+            
+            // Initialize map
+            initMap();
+            
+            // Setup event listeners
+            setupEventListeners();
+            
+            // Set default dates
+            setDefaultDates();
+            
+            console.log('✅ STAYFINDR ready with 71 cities and dual API support!');
         });
     </script>
 </body>
